@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Repair Bench - PRIVATE PROTOTYPE (fixtures, no model calls)</title>
+<style>
+  body { margin:0; font:15px/1.5 system-ui,sans-serif; background:#10131f; color:#e8eaf2; }
+  header { padding:18px 24px 6px; }
+  h1 { margin:0 0 4px; font-size:21px; }
+  .banner { display:inline-block; background:#7a1f1f; color:#ffd9d9; font-weight:700; font-size:12px;
+            padding:3px 10px; border-radius:4px; letter-spacing:.05em; margin-bottom:8px; }
+  .sub { color:#9aa3bf; max-width:900px; }
+  main { padding:10px 24px 40px; display:flex; gap:24px; flex-wrap:wrap; }
+  canvas { background:#181d30; border:1px solid #2a3155; border-radius:8px; }
+  .side { flex:1; min-width:340px; max-width:520px; }
+  button { display:block; width:100%; text-align:left; margin:6px 0; font:inherit; padding:9px 12px;
+           border-radius:6px; border:1px solid #39406b; background:#232a48; color:#e8eaf2; cursor:pointer; }
+  button:hover { background:#2c3560; }
+  #log { background:#161b2e; border:1px solid #2a3155; border-radius:8px; padding:10px 12px;
+         font:13px/1.5 ui-monospace,monospace; white-space:pre-wrap; min-height:280px; }
+  .pass { color:#51cf8e; font-weight:700; } .fail { color:#ff6b6b; font-weight:700; } .warn { color:#ffd166; font-weight:700; }
+  .tag { font-size:12px; color:#9aa3bf; }
+</style>
+</head>
+<body>
+<header>
+  <span class="banner">PRIVATE PROTOTYPE - FIXTURE REPAIR ONLY, NO META MODEL OUTPUT, NO API CALLS</span>
+  <h1>Repair Bench (working title)</h1>
+  <p class="sub">A tiny original world with a seeded input-mapping defect. The SAME recorded keystrokes are
+  replayed before and after a repair. The oracle (task, walls, collision, victory, replay) is immutable and
+  integrity-hashed: a patch that removes obstacles, disables collision, teleports, or ignores input is rejected.</p>
+</header>
+<main>
+  <div><canvas id="cv" width="600" height="480"></canvas>
+    <div class="tag">Level 1: reach the green flag. Barrier has one gap at the bottom. Defect: Up/Down are inverted.</div></div>
+  <div class="side">
+    <button id="b1">1. Run recorded replay with seeded defect</button>
+    <button id="b2">2. Try CHEAT patch (autopilot pathfinds to goal) - expect REJECTED</button>
+    <button id="b3">3. Apply FIXTURE repair (written by us, not a model) + verify</button>
+    <button id="b4">4. Run the SAME replay after repair</button>
+    <div id="log">Ready.</div>
+  </div>
+</main>
+<script src="src/world.js"></script>
+<script src="src/physics.js"></script>
+<script src="src/victory.js"></script>
+<script src="src/replay.js"></script>
+<script src="src/harness.js"></script>
+<script src="patches/seeded_defect_v1.js"></script>
+<script src="patches/fixture_repair.js"></script>
+<script src="patches/cheat_autopilot.js"></script>
+<script>
+const level = RBWorld.LEVELS.level1;
+const CELL = 60, cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+const logEl = document.getElementById("log");
+const mods = { replay: RBReplay, physics: RBPhysics, victory: RBVictory };
+let manifest = null;
+let active = RBPatches.bug_v1.mapInput;
+let activeLabel = "seeded defect (up/down inverted)";
+
+function log(msg) { logEl.textContent += "\n" + msg; logEl.scrollTop = logEl.scrollHeight; }
+function draw(state, path) {
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = "#232a48";
+  for (let x = 0; x <= level.width; x++) { ctx.beginPath(); ctx.moveTo(x*CELL, 0); ctx.lineTo(x*CELL, cv.height); ctx.stroke(); }
+  for (let y = 0; y <= level.height; y++) { ctx.beginPath(); ctx.moveTo(0, y*CELL); ctx.lineTo(cv.width, y*CELL); ctx.stroke(); }
+  ctx.fillStyle = "#3a4266";
+  for (const w of level.walls) ctx.fillRect(w.x*CELL+2, w.y*CELL+2, CELL-4, CELL-4);
+  ctx.fillStyle = "#2e7d4f";
+  ctx.fillRect(level.goal.x*CELL+6, level.goal.y*CELL+6, CELL-12, CELL-12);
+  ctx.fillStyle = "#9fe8c1"; ctx.font = "bold 12px system-ui";
+  ctx.fillText("GOAL", level.goal.x*CELL+10, level.goal.y*CELL+34);
+  if (path && path.length > 1) {
+    ctx.strokeStyle = "#ffd166"; ctx.lineWidth = 3; ctx.beginPath();
+    ctx.moveTo(path[0].x*CELL+CELL/2, path[0].y*CELL+CELL/2);
+    for (const p of path) ctx.lineTo(p.x*CELL+CELL/2, p.y*CELL+CELL/2);
+    ctx.stroke(); ctx.lineWidth = 1;
+  }
+  ctx.fillStyle = "#5b8cff";
+  ctx.fillRect(state.x*CELL+8, state.y*CELL+8, CELL-16, CELL-16);
+}
+function runAnimated(label) {
+  const keys = RBReplay.REPLAYS.level1;
+  let state = { x: level.start.x, y: level.start.y };
+  const path = [Object.assign({}, state)];
+  log(`Running replay (${keys.length} inputs) with ${label}...`);
+  let i = 0;
+  return new Promise(resolve => {
+    const timer = setInterval(() => {
+      if (i >= keys.length) {
+        clearInterval(timer);
+        const won = RBVictory.isVictory(state, level);
+        log(`End at (${state.x},${state.y}); goal (${level.goal.x},${level.goal.y}) -> ` + (won ? "VICTORY" : "FAIL"));
+        resolve({ state, path, won });
+        return;
+      }
+      state = RBPhysics.step(state, keys[i], active, level);
+      path.push({ x: state.x, y: state.y });
+      draw(state, path);
+      i++;
+    }, 130);
+  });
+}
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function currentHashes() {
+  const out = {};
+  for (const f of Object.keys(manifest)) out[f] = await sha256(await (await fetch(f)).text());
+  return out;
+}
+async function verify(label) {
+  const res = RBHarness.acceptPatch(level, active, await currentHashes(), manifest, mods, RBPatches.fixture.mapInput);
+  log(`Verifying ${label}:`);
+  for (const [k, c] of Object.entries(res.checks)) log(`  ${c.ok ? "ok  " : "FAIL"} ${k}: ${c.detail}`);
+  log(`Verdict: ${res.verdict}`);
+  return res;
+}
+document.getElementById("b1").onclick = async () => { logEl.textContent = "Demo start. Active patch: " + activeLabel; await runAnimated(activeLabel); };
+document.getElementById("b2").onclick = async () => {
+  const saved = active;
+  active = RBPatches.cheat_autopilot.mapInput;
+  const res = await verify("CHEAT autopilot patch");
+  if (res.verdict === "REJECTED") { log("Cheat rejected as designed. Active patch unchanged."); active = saved; }
+};
+document.getElementById("b3").onclick = async () => {
+  const saved = active;
+  active = RBPatches.fixture.mapInput;
+  const res = await verify("FIXTURE repair (not model output)");
+  if (res.verdict === "ACCEPTED") { activeLabel = "FIXTURE repair (not model output)"; log("Fixture accepted; repair is now active."); }
+  else active = saved;
+};
+document.getElementById("b4").onclick = () => runAnimated(activeLabel);
+(async () => {
+  manifest = await (await fetch("tests/integrity_manifest.json")).json();
+  draw(level.start, null);
+  const demo = new URLSearchParams(location.search).get("demo");
+  if (demo === "broken") document.getElementById("b1").click();
+  if (demo === "cheat") { logEl.textContent = "Cheat demonstration."; await document.getElementById("b2").onclick(); draw(level.start, null); }
+  if (demo === "fixed") {
+    logEl.textContent = "Fixture repair demonstration.";
+    await document.getElementById("b3").onclick();
+    await runAnimated(activeLabel);
+  }
+})();
+</script>
+</body>
+</html>

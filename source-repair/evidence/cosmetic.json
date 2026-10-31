@@ -1,0 +1,154 @@
+{
+  "all_passed": false,
+  "cases": [
+    {
+      "case": "filtered_tool",
+      "failures": [
+        "stop: expected='content_filter', observed='tool_calls'",
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": true,
+        "explanation": "Response incomplete: content_filter",
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": false
+    },
+    {
+      "case": "filtered_tool_with_refusal",
+      "failures": [
+        "stop: expected='content_filter', observed='tool_calls'",
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": true,
+        "explanation": "Blocked due to policy",
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": false
+    },
+    {
+      "case": "filtered_no_tool",
+      "failures": [],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": false,
+        "explanation": "Response incomplete: content_filter",
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "truncated_tool",
+      "failures": [
+        "stop: expected='max_tokens', observed='tool_calls'",
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": null,
+        "dispatch": true,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": false
+    },
+    {
+      "case": "truncated_no_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": true,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_text",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "stop",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_refusal",
+      "failures": [],
+      "observed": {
+        "details_type": "refusal",
+        "dispatch": false,
+        "explanation": "No, I cannot help.",
+        "message_text": "model response text",
+        "stop": "stop",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "truncated_tool_with_refusal",
+      "failures": [
+        "stop: expected='max_tokens', observed='tool_calls'",
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": "refusal",
+        "dispatch": true,
+        "explanation": "I can't finish.",
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": false
+    }
+  ],
+  "passed": 5,
+  "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+  "python_version": "3.13.5",
+  "source": {
+    "collect_stop_details.py": {
+      "fnv32": "b84ebfc0",
+      "sha256": "a53ea3458a6c6c6dbce2879938f91bea41123d9f9d25e115e6847609856c94b5"
+    },
+    "convert_response.py": {
+      "fnv32": "0dd1ca0e",
+      "sha256": "53c28fa9aa5506bf873f9cf0875e8c9272d6463268844d890487341cb01976be"
+    },
+    "responses_stop_details.py": {
+      "fnv32": "84701721",
+      "sha256": "e366db4607098e4d4077f338f176c297fac349ff28cd6f6480c81e6d0169ecfc"
+    }
+  },
+  "source_dir": "cosmetic",
+  "total": 9,
+  "warning": "Source-derived pinned function excerpts with test stand-ins; not a full Inspect installation or Meta run"
+}

@@ -1,0 +1,14 @@
+# Never commit local model credentials or machine-specific execution data
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+__pycache__/
+*.py[cod]
+.pytest_cache/
+node_modules/
+a11y-lab/trials/
+trials/
+*.log
+.DS_Store

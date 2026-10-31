@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- Repair Bench original synthetic dialog defect: immutable evaluation fixture. -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repair Bench — Dialog Focus Fixture</title><style>
+body{font:17px/1.5 system-ui,sans-serif;max-width:42rem;margin:2rem auto;padding:0 1rem;color:#182233}
+button,a{font:inherit}button{padding:.6rem 1rem;cursor:pointer}button:focus-visible,a:focus-visible{outline:4px solid #005fcc;outline-offset:3px}
+#dialog-box{position:fixed;top:12%;left:12%;right:12%;margin:auto;max-width:28rem;padding:1.5rem;border:3px solid #153a5e;border-radius:12px;background:white;box-shadow:0 0 0 100vmax rgba(2,14,35,.45)}
+#dialog-box h2{margin-top:0}[hidden]{display:none!important}
+#outside{display:flex;gap:15px;flex-wrap:wrap;align-items:center}
+</style></head><body>
+<h1>Repair Bench: dialog focus trap</h1><p>A modal must manage keyboard focus and close with Escape—not merely declare ARIA semantics.</p>
+<div id="outside"><button id="open-dialog" type="button">Open settings</button><a id="outside-link" href="#outside">Background navigation</a></div>
+<div id="dialog-box" data-repair-target="dialog" hidden><h2 id="dialog-title">Settings</h2><p>Choose an option or close this modal.</p><button id="close-dialog" type="button">Close settings</button><a id="inside-link" href="#dialog-title">Dialog help</a></div>
+<script>
+(() => {
+  const opener=document.getElementById('open-dialog');
+  const box=document.getElementById('dialog-box');
+  const closer=document.getElementById('close-dialog');
+  function open(){box.hidden=false;}
+  function close(){box.hidden=true;opener.focus();}
+  opener.addEventListener('click',open);
+  closer.addEventListener('click',close);
+  /* TRUSTED_REPAIR_HOOK */
+})();
+</script></body></html>

@@ -1,0 +1,155 @@
+{
+  "all_passed": false,
+  "cases": [
+    {
+      "case": "filtered_tool",
+      "failures": [
+        "details_type: expected='content_filter', observed=None",
+        "dispatch: expected=False, observed=True",
+        "explanation: must be present for blocked content"
+      ],
+      "observed": {
+        "details_type": null,
+        "dispatch": true,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 1
+      },
+      "passed": false
+    },
+    {
+      "case": "filtered_tool_with_refusal",
+      "failures": [
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": true,
+        "explanation": "Blocked due to policy",
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 1
+      },
+      "passed": false
+    },
+    {
+      "case": "filtered_no_tool",
+      "failures": [
+        "details_type: expected='content_filter', observed=None",
+        "explanation: must be present for blocked content"
+      ],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 0
+      },
+      "passed": false
+    },
+    {
+      "case": "truncated_tool",
+      "failures": [
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": null,
+        "dispatch": true,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 1
+      },
+      "passed": false
+    },
+    {
+      "case": "truncated_no_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": true,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_text",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "stop",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_refusal",
+      "failures": [],
+      "observed": {
+        "details_type": "refusal",
+        "dispatch": false,
+        "explanation": "No, I cannot help.",
+        "message_text": "model response text",
+        "stop": "stop",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "truncated_tool_with_refusal",
+      "failures": [
+        "dispatch: expected=False, observed=True"
+      ],
+      "observed": {
+        "details_type": "refusal",
+        "dispatch": true,
+        "explanation": "I can't finish.",
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 1
+      },
+      "passed": false
+    }
+  ],
+  "passed": 4,
+  "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+  "python_version": "3.13.5",
+  "source": {
+    "collect_stop_details.py": {
+      "fnv32": "b84ebfc0",
+      "sha256": "a53ea3458a6c6c6dbce2879938f91bea41123d9f9d25e115e6847609856c94b5"
+    },
+    "convert_response.py": {
+      "fnv32": "67ca2be1",
+      "sha256": "4d03f9302c05eb8ffe2d2586569eeff5f22bee667a4fc22f16d3a173a3fd4167"
+    },
+    "responses_stop_details.py": {
+      "fnv32": "1d80f891",
+      "sha256": "71f63dc78902e0a4a131ede7f4e2f2b06c6df6ee0b2f1cf8314814c123039a9d"
+    }
+  },
+  "source_dir": "stoponly",
+  "total": 9,
+  "warning": "Source-derived pinned function excerpts with test stand-ins; not a full Inspect installation or Meta run"
+}

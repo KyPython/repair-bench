@@ -1,0 +1,39 @@
+{
+  "protocol_version": "1.0.0",
+  "work_item": "Repair Bench real-source repair benchmark — Inspect AI #5971",
+  "upstream_repository": "UKGovernmentBEIS/inspect_ai",
+  "upstream_issue": "https://github.com/UKGovernmentBEIS/inspect_ai/issues/5971",
+  "upstream_reference": "386e099",
+  "source_provenance": {
+    "src/inspect_ai/model/_openai_responses.py": "7bd0cc985e4dae87aac4526cd7410e716734d947",
+    "src/inspect_ai/model/_model_output.py": "fa414391f98234d58b1d040cceef84bc96270087"
+  },
+  "selected_source_functions_fnv32": {
+    "responses_stop_details.py": "1d80f891",
+    "convert_response.py": "0dd1ca0e",
+    "collect_stop_details.py": "b84ebfc0"
+  },
+  "rubric": {
+    "invariants": [
+      "On filtered or incomplete responses, never expose a partial function call to downstream execution",
+      "A content-filter block must remain visible as both stop reason and explainable stop details, including when function calls exist",
+      "Normal complete tool calls must remain executable",
+      "Refusal text must remain visible if present",
+      "Avoid changing shared stop-details collector behavior unrelated to this provider",
+      "Code patch must not alter the upstream fixture inputs or evaluation tests"
+    ],
+    "scoring": "Each case is an independent executable check; failure of filtered-tool dispatch blocks acceptance regardless of mean score.",
+    "not_claimed": ["Full upstream integration", "Meta inference", "Tool abuse in a deployed product", "A new bug discovery", "Maintainer-approved upstream fix"]
+  },
+  "cases": [
+    {"id":"filtered_tool","incomplete_reason":"content_filter","tool":true,"refusal":null,"stop":"content_filter","details_type":"content_filter","detail_nonempty":true,"dispatch":false},
+    {"id":"filtered_tool_with_refusal","incomplete_reason":"content_filter","tool":true,"refusal":"Blocked due to policy","stop":"content_filter","details_type":"content_filter","explanation":"Blocked due to policy","dispatch":false},
+    {"id":"filtered_no_tool","incomplete_reason":"content_filter","tool":false,"refusal":null,"stop":"content_filter","details_type":"content_filter","detail_nonempty":true,"dispatch":false},
+    {"id":"truncated_tool","incomplete_reason":"max_output_tokens","tool":true,"refusal":null,"stop":"max_tokens","details_type":null,"dispatch":false},
+    {"id":"truncated_no_tool","incomplete_reason":"max_output_tokens","tool":false,"refusal":null,"stop":"max_tokens","details_type":null,"dispatch":false},
+    {"id":"normal_tool","incomplete_reason":null,"tool":true,"refusal":null,"stop":"tool_calls","details_type":null,"dispatch":true},
+    {"id":"normal_text","incomplete_reason":null,"tool":false,"refusal":null,"stop":"stop","details_type":null,"dispatch":false},
+    {"id":"normal_refusal","incomplete_reason":null,"tool":false,"refusal":"No, I cannot help.","stop":"stop","details_type":"refusal","explanation":"No, I cannot help.","dispatch":false},
+    {"id":"truncated_tool_with_refusal","incomplete_reason":"max_output_tokens","tool":true,"refusal":"I can't finish.","stop":"max_tokens","details_type":"refusal","explanation":"I can't finish.","dispatch":false}
+  ]
+}

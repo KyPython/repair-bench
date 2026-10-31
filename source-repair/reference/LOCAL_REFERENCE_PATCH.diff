@@ -1,0 +1,28 @@
+--- a/convert_response.py
++++ b/convert_response.py
+@@ -26,13 +26,13 @@
+         _process_response_output_items(response.output, tools)
+     )
+ 
+-    if has_tool_calls:
++    if has_tool_calls and response.incomplete_details is None:
+         stop_reason = "tool_calls"
+ 
+     return (
+         ChatMessageAssistant(
+             content=message_content,
+-            tool_calls=tool_calls if len(tool_calls) > 0 else None,
++            tool_calls=(tool_calls if len(tool_calls) > 0 and response.incomplete_details is None else None),
+             model=model,
+             source="generate",
+         ),
+--- a/responses_stop_details.py
++++ b/responses_stop_details.py
+@@ -24,6 +24,6 @@
+ 
+     return StopDetails(
+         type="content_filter" if is_content_filter else "refusal",
+-        explanation=explanation,
++        explanation=explanation or ("Response incomplete: content_filter" if is_content_filter else None),
+     )
+ 

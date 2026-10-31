@@ -1,0 +1,1477 @@
+{
+  "cosmetic": {
+    "branch": "cosmetic",
+    "checks": 18,
+    "passed": 10,
+    "results": [
+      {
+        "expected": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=True"
+      }
+    ]
+  },
+  "reference": {
+    "branch": "reference",
+    "checks": 18,
+    "passed": 18,
+    "results": [
+      {
+        "expected": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=True"
+      }
+    ]
+  },
+  "stoponly": {
+    "branch": "stoponly",
+    "checks": 18,
+    "passed": 9,
+    "results": [
+      {
+        "expected": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=True"
+      }
+    ]
+  },
+  "toolsonly": {
+    "branch": "toolsonly",
+    "checks": 18,
+    "passed": 9,
+    "results": [
+      {
+        "expected": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=True"
+      }
+    ]
+  },
+  "upstream": {
+    "branch": "upstream",
+    "checks": 18,
+    "passed": 9,
+    "results": [
+      {
+        "expected": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "stop",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "stop",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=completed; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=content_filter; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "content_filter",
+          false,
+          "content_filter",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "content_filter",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=content_filter; calls=2; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "pass": true,
+        "scenario": "reason=max_output_tokens; calls=0; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=1; refusal=True"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          null,
+          false
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          null,
+          false
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=False"
+      },
+      {
+        "expected": [
+          "max_tokens",
+          false,
+          "refusal",
+          true
+        ],
+        "observed": [
+          "tool_calls",
+          true,
+          "refusal",
+          true
+        ],
+        "pass": false,
+        "scenario": "reason=max_output_tokens; calls=2; refusal=True"
+      }
+    ]
+  }
+}

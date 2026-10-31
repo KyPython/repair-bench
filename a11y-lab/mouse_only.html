@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- Repair Bench synthetic accessibility fixture. GPT-6, 2026-10-28. -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repair Bench — Keyboard Menu Fixture</title>
+<style>
+body { font: 18px/1.5 system-ui,sans-serif; max-width: 44rem; margin: 3rem auto; padding: 0 1rem; }
+#open-menu { display: inline-block; border: 2px solid #333; border-radius: .5rem; padding: .6rem 1rem; background: #f3f4f6; color: #111; font: inherit; cursor: pointer; }
+#open-menu:focus-visible, #close-menu:focus-visible { outline: 4px solid #005fcc; outline-offset: 3px; }
+#panel { border: 2px solid #777; padding: 1rem; margin-top: 1rem; border-radius: .5rem; }
+[hidden] { display: none !important; }
+</style></head><body>
+<h1>Repair Bench: local menu fixture</h1>
+<p>Open the sample menu using only a keyboard. A mouse must continue to work.</p>
+<div id="open-menu" data-repair-target="menu-trigger" aria-expanded="false" aria-controls="panel">Open menu</div>
+<section id="panel" hidden aria-label="Menu panel"><p>Menu content</p><button id="close-menu" type="button">Close menu</button></section>
+<script>
+(() => {
+  const trigger = document.getElementById('open-menu');
+  const panel = document.getElementById('panel');
+  function setOpen(open) {
+    panel.hidden = !open;
+    trigger.setAttribute('aria-expanded', String(open));
+    if (!open) trigger.focus();
+  }
+  trigger.addEventListener('click', () => setOpen(true));
+  document.getElementById('close-menu').addEventListener('click', () => setOpen(false));
+})();
+</script></body></html>
