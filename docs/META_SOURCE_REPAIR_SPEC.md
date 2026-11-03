@@ -81,6 +81,22 @@ criteria are unchanged. The pre-amendment reservation (request
 re-reservation must reproduce the identical request hash to prove the
 request bytes did not change.
 
+## Amendment 2026-11-03 — owner-authorized single-file test re-baseline
+
+Finding: `submission/test_world_browser.py` observed the page through in-page
+`page.evaluate` strings, which cannot run under the Content Security Policy the
+same test asserts (`script-src` without `unsafe-eval`). The canvas/replay test
+could never pass in any mode; the failure was in the test's observation method,
+not in the sealed world, the server, or the asserted policy.
+
+Owner decision: accept the test-only fix (CDP-level observation via locators,
+text matching, screenshots decoded with Pillow, and init-script injection; same
+assertions and verdicts; no product, sealed-source, or policy bytes changed) and
+re-baseline that one file's hash in `source-repair/trial/PROTECTED_SHA256.json`
+(`b4a011fd…` to `1391c944…`). All other 70 protected entries are unchanged, and
+attempt 01's recorded evidence (including the spec hash in its manifest, which
+remains a true record of the spec as it stood at reservation) is untouched.
+
 ## Shared replay evidence contract (v1)
 
 `source-repair/model-trial.json` is a sanitized local artifact, never raw provider

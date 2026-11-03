@@ -16,14 +16,14 @@ import hashlib
 import http.client
 import json
 import re
-import struct
 import threading
 import time
 import unittest
-import zlib
 from http.server import ThreadingHTTPServer
+from io import BytesIO
 from pathlib import Path
 import os
+from PIL import Image
 from playwright.sync_api import sync_playwright, Error as PlaywrightError
 
 from server import Handler
@@ -37,57 +37,15 @@ REQUIRED_SCRIPTS = (
 
 
 def count_nonuniform_png_pixels(raw: bytes) -> int:
-    """Pixels differing from the top-left pixel, via stdlib PNG decode.
+    """Pixels differing from the top-left pixel.
 
-    Playwright screenshots are 8-bit RGB/RGBA PNGs. A blank canvas renders a
-    uniform fill, so any drawn grid, wall, goal or player raises this count.
+    A blank canvas renders a uniform fill, so any drawn grid, wall, goal or
+    player raises this count.
     """
-    if raw[:8] != b'\x89PNG\r\n\x1a\n':
-        raise ValueError('not a PNG screenshot')
-    pos, width, height, color_type, bit_depth, idat = 8, 0, 0, 0, 0, bytearray()
-    while pos + 8 <= len(raw):
-        (length,) = struct.unpack('>I', raw[pos:pos + 4])
-        kind = raw[pos + 4:pos + 8]
-        data = raw[pos + 8:pos + 8 + length]
-        if kind == b'IHDR':
-            width, height, bit_depth, color_type, _, _, _ = struct.unpack('>IIBBBBB', data)
-        elif kind == b'IDAT':
-            idat.extend(data)
-        elif kind == b'IEND':
-            break
-        pos += 12 + length
-    if bit_depth != 8 or color_type not in (2, 6):
-        raise ValueError(f'unsupported screenshot format depth={bit_depth} color={color_type}')
-    channels = 3 if color_type == 2 else 4
-    stride = width * channels
-    pixels = bytearray(width * height * channels)
-    stream = zlib.decompress(bytes(idat))
-    offset, previous = 0, bytearray(stride)
-    for row in range(height):
-        kind = stream[offset]
-        offset += 1
-        current = bytearray(stream[offset:offset + stride])
-        offset += stride
-        for i in range(stride):
-            left = current[i - channels] if i >= channels else 0
-            up = previous[i]
-            upper_left = previous[i - channels] if i >= channels else 0
-            if kind == 1:
-                current[i] = (current[i] + left) & 0xFF
-            elif kind == 2:
-                current[i] = (current[i] + up) & 0xFF
-            elif kind == 3:
-                current[i] = (current[i] + ((left + up) >> 1)) & 0xFF
-            elif kind == 4:
-                pred = left + up - upper_left
-                pa, pb, pc = abs(pred - left), abs(pred - up), abs(pred - upper_left)
-                base = left if (pa <= pb and pa <= pc) else (up if pb <= pc else upper_left)
-                current[i] = (current[i] + base) & 0xFF
-        pixels[row * stride:(row + 1) * stride] = current
-        previous = current
-    baseline = bytes(pixels[:channels])
-    return sum(1 for i in range(0, len(pixels), channels)
-               if bytes(pixels[i:i + channels]) != baseline)
+    with Image.open(BytesIO(raw)) as img:
+        pixels = list(img.convert('RGB').getdata())
+    baseline = pixels[0]
+    return sum(1 for pixel in pixels if pixel != baseline)
 
 
 class WorldBrowserRegression(unittest.TestCase):
