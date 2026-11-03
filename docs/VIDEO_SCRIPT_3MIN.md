@@ -103,7 +103,9 @@ SAY:
 cd /Users/ky/repair-bench
 export RB_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 # (Playwright's bundled Chromium 120 crashes on this macOS release; the suites
-# honor RB_CHROMIUM. Verified green 2026-11-03 with system Chrome.)
+# AND the live demo server honor RB_CHROMIUM. Verified green 2026-11-03 with
+# system Chrome. Without this variable the recording shows "Audit interrupted"
+# on camera instead of verdicts — do not skip it.)
 node tests/run_tests.js                    # expect 16 passed, 0 failed
 node --test tests/evaluate_mapping.test.js # expect pass 11, fail 0
 python3 -m unittest discover -s a11y-lab -p 'test_*.py'  # expect 37 OK
@@ -121,7 +123,11 @@ Do not fake a live verdict; narrate the replay as a replay.
 1. Run the full pre-flight above; do not record on a red suite.
 2. Fresh terminal, repo root, server on port 8765, homepage loaded before recording.
 3. Record at 1080p, browser window only, no API keys or private tabs visible.
-4. Do the menu clicks live; do not splice verdicts. One continuous take for 0:45–1:35 if possible.
+4. Do the menu clicks live; do not splice verdicts. One continuous take for 0:45–1:35.
+   Technique (measured 2026-11-03): click "Audit all three" once per task and narrate
+   OVER the run — menu takes ~28s (lands REJECTED 4/9, REJECTED 5/9, ACCEPTED 9/9),
+   dialog ~15s (REJECTED 7/13, REJECTED 8/13, ACCEPTED 13/13). End the beat framed on
+   the three-way comparison ("Complete: two rejected, one accepted").
 5. Keyboard-check the demo page once (Tab through the menu and dialog). An accessibility
    project must not ship a mouse-only demo.
 6. On `/source-repair`, pause two full seconds on the score table so it is readable.
