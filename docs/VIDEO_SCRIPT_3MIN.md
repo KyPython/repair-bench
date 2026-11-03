@@ -99,10 +99,13 @@ SAY:
 
 ```sh
 cd /Users/ky/repair-bench
+export RB_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+# (Playwright's bundled Chromium 120 crashes on this macOS release; the suites
+# honor RB_CHROMIUM. Verified green 2026-11-03 with system Chrome.)
 node tests/run_tests.js                    # expect 16 passed, 0 failed
 node --test tests/evaluate_mapping.test.js # expect pass 11, fail 0
-python3 -m unittest discover -s a11y-lab -p 'test_*.py'  # expect 37 OK (needs Playwright Chromium)
-PYTHONPATH=submission python3 -m unittest discover -s submission -p 'test_*.py' -v  # expect 22 OK
+python3 -m unittest discover -s a11y-lab -p 'test_*.py'  # expect 37 OK
+PYTHONPATH=submission python3 -m unittest discover -s submission -p 'test_*.py'  # expect 33 OK incl. HTTP_NAVIGATION
 node --check submission/app.js
 PYTHONPATH=submission python3 submission/server.py --port 8765  # then open http://127.0.0.1:8765/
 ```
@@ -146,8 +149,8 @@ Do not fake a live verdict; narrate the replay as a replay.
   operator candidate 9/9 with scope approved. Source-repair/README.md lines 48–62.
 - In-CLI proposal 9/9 and 18/18 exists but provider identity not independently authenticated:
   README.md line 7, source-repair/README.md lines 34–46. Not claimed in this script.
-- World test HTTP navigation vs restricted replay fallback: docs/WORLD_BROWSER_REGRESSION.md.
-  Not demoed live; omitted rather than risk overclaim.
+- World browser test passes in HTTP_NAVIGATION (verified 2026-11-03; see
+  docs/WORLD_BROWSER_REGRESSION.md). Not demoed live; kept out of the video for time.
 - Public MIT since Oct 31 2026, upstream notice kept: README.md line 36.
 - Deadline Nov 4 2026 9 PM ET, eligibility/waiver/demo/form owner-controlled, organizers judge
   model-use requirement: README.md line 38.
