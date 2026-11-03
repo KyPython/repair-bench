@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "scope": "direct_meta_01 single send, n=1, max_completion_tokens=8192, no retries",
+  "request_sha256": "f122a2a0cea4518b366b3e49a74d7be45ccf9ba8c4ec5d5d889df0eddd9d79b4",
+  "owner_accepts_bounded_cost_risk": true,
+  "authorized_utc": "2026-11-03T09:43:00.252063+00:00"
+}

@@ -1,6 +1,6 @@
 # Repair Bench — Real-source Challenge 01 (private review build)
 
-**Scope:** demonstrate a real, previously published bug and evaluate a source-level correction with safe controls. This extends the owner-selected Repair Bench project; it is not a new business/project, source contribution, or Meta-model result.
+**Scope:** demonstrate a real, previously published bug and evaluate a source-level correction with safe controls. This extends the owner-selected Repair Bench project; it is not a new business/project or source contribution. It now also records one live Meta-model attempt and its honest failure (see below).
 
 **Source:** UK AI Security Institute's MIT-licensed [Inspect AI](https://github.com/UKGovernmentBEIS/inspect_ai), [issue #5971](https://github.com/UKGovernmentBEIS/inspect_ai/issues/5971), snapshot reference `386e099`. Pinned source blobs: `_openai_responses.py` `7bd0cc985e4dae87aac4526cd7410e716734d947`; `_model_output.py` `fa414391f98234d58b1d040cceef84bc96270087`. `upstream/` contains exactly three actual function excerpts, and the exact upstream MIT license is included. All excerpts verified by FNV32 byte-level checks. Not a checkout of the complete project.
 
@@ -45,10 +45,26 @@ evidence only, not a contamination-free holdout, and no model-superiority claim.
 The recorded demo page and `results.json` intentionally still replay only the
 five pre-model branches.
 
+## Direct Meta attempt (one live `api.meta.ai` call, 2026-11-03)
+
+A single frozen request (`trial/direct_meta_01/request.json`,
+SHA-256 `f122a2a0…`) was sent to `muse-spark-1.3` under the owner-authorized
+billing amendment in `docs/META_SOURCE_REPAIR_SPEC.md`. The provider returned
+one clean-stop completion (response `chatcmpl-01a1a2a2-…`, 6,791 tokens) whose
+proposed patch was **rejected at scope review** — its diff hunk headers did
+not apply to the frozen excerpts — and was therefore never executed. The same
+isolated sandbox run reproduced all five comparator scores and accepted the
+operator-supplied candidate 9/9. Transport summary, sandbox observations and
+the rejected patch replay in the demo page from sanitized
+`source-repair/model-trial.json`; raw provider bytes stay in the gitignored
+`trial/.private/` directory. This is a genuine negative result, not a
+successful repair, and the contamination and no-superiority boundaries above
+still apply.
+
 ## Safety/authority
 
 - No imported upstream package or its install scripts were executed.
-- No model output is executed. `trial/model_request.py` only creates an offline, owner-reviewable prompt digest.
-- Do not run untrusted patches with this Python excerpt evaluator: it `exec`s code, and its shims are **not a security sandbox**. Only the pinned upstream snippets and our locally reviewed reference/control variants were run here.
-- Any real Meta inference, overage, public-source license, GitHub publication, external issue/PR comment or contest submission requires separate approval.
+- The direct model patch was never executed: it failed scope review first. Candidate code reaches the excerpt evaluator only inside disposable network-disabled Docker containers via `trial/sandbox_eval.py`, after the scope gate passes.
+- Do not run untrusted patches with the raw Python excerpt evaluator outside that sandbox: it `exec`s code, and its shims are **not a security sandbox**. `trial/model_request.py` only creates an offline, owner-reviewable prompt digest.
+- Any further Meta inference, overage, public-source license, GitHub publication, external issue/PR comment or contest submission requires separate approval.
 - Preserve the `upstream/LICENSE` notice in any derivative release containing source excerpts.
