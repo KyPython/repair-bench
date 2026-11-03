@@ -1,0 +1,230 @@
+{
+  "acceptance_gate": {
+    "filtered_tool_dispatch": false,
+    "normal_tool_dispatch_preserved": true,
+    "satisfied": true
+  },
+  "attempt": "model_attempt_01",
+  "comparators_reproduced": true,
+  "environment": {
+    "copy": "/tmp/model_attempt_01_eval (separate from repo; repo files untouched)",
+    "isolation_limits": "Full network-namespace denial is not available in this macOS CLI sandbox; isolation here is a separate creds-free copy plus a verified no-network harness. Residual risk accepted and stated.",
+    "network_review": "Harness grep for socket/urllib/requests/http/urlopen/subprocess found nothing; no server started; no network I/O in eval path.",
+    "operator_env_note": "Operator shell DOES bear secret-bearing variable names (*_API_KEY / *_TOKEN); model code was never executed there.",
+    "oracle_identity_checks": [
+      "run_trial.py byte-identical to repo",
+      "PROTOCOL.json byte-identical to repo",
+      "all branch .py files byte-identical to repo",
+      "model .py files byte-identical to repo proposal"
+    ],
+    "oracle_unmodified": true,
+    "scrubbed_env_vars": [
+      "HOME",
+      "PATH",
+      "PWD",
+      "PYTHONNOUSERSITE",
+      "SHLVL",
+      "_"
+    ],
+    "secret_name_scan": "SCRUBBED_CLEAN (no *key*/*token*/*secret*/*auth* names)"
+  },
+  "evaluator": "Unmodified trial harness (run_trial.py) executed by an operator-directed isolated run. This record is independent evaluator output, not a model self-report and not an operator-supplied receipt.",
+  "freeze": "source-repair/trial/FREEZE_MODEL_ATTEMPT_01.md (frozen before patch generation)",
+  "hashes": {
+    "patch_sha256": "62161d862a04cef5b1c756baa2f8a9b57c1c7227d2ab8b6f8f8dc0f6f3a3e597",
+    "proposal_files": {
+      "collect_stop_details.py": "a53ea3458a6c6c6dbce2879938f91bea41123d9f9d25e115e6847609856c94b5",
+      "convert_response.py": "702297afab5df409751976bb91481c72763defea41b9c0ece5d5557dfc705b6e",
+      "responses_stop_details.py": "af57c97c2b4ba7fd1ea9948d07ba1e211be4fddfce7f0865201eea30e6dfced2"
+    },
+    "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595"
+  },
+  "metamorphic_expected_prefreeze": {
+    "cosmetic": "10/18",
+    "reference": "18/18",
+    "stoponly": "9/18",
+    "toolsonly": "9/18",
+    "upstream": "9/18"
+  },
+  "metamorphic_supplemental_not_preregistered": {
+    "cosmetic": {
+      "checks": 18,
+      "passed": 10
+    },
+    "model_attempt_01": {
+      "checks": 18,
+      "passed": 18
+    },
+    "reference": {
+      "checks": 18,
+      "passed": 18
+    },
+    "stoponly": {
+      "checks": 18,
+      "passed": 9
+    },
+    "toolsonly": {
+      "checks": 18,
+      "passed": 9
+    },
+    "upstream": {
+      "checks": 18,
+      "passed": 9
+    }
+  },
+  "model_failures": [],
+  "model_protocol_cases": [
+    {
+      "case": "filtered_tool",
+      "failures": [],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": false,
+        "explanation": "Content filtered: response incomplete",
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "filtered_tool_with_refusal",
+      "failures": [],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": false,
+        "explanation": "Blocked due to policy",
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "filtered_no_tool",
+      "failures": [],
+      "observed": {
+        "details_type": "content_filter",
+        "dispatch": false,
+        "explanation": "Content filtered: response incomplete",
+        "message_text": "model response text",
+        "stop": "content_filter",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "truncated_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "truncated_no_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_tool",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": true,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "tool_calls",
+        "tool_call_count": 1
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_text",
+      "failures": [],
+      "observed": {
+        "details_type": null,
+        "dispatch": false,
+        "explanation": null,
+        "message_text": "model response text",
+        "stop": "stop",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "normal_refusal",
+      "failures": [],
+      "observed": {
+        "details_type": "refusal",
+        "dispatch": false,
+        "explanation": "No, I cannot help.",
+        "message_text": "model response text",
+        "stop": "stop",
+        "tool_call_count": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "truncated_tool_with_refusal",
+      "failures": [],
+      "observed": {
+        "details_type": "refusal",
+        "dispatch": false,
+        "explanation": "I can't finish.",
+        "message_text": "model response text",
+        "stop": "max_tokens",
+        "tool_call_count": 0
+      },
+      "passed": true
+    }
+  ],
+  "protocol_expected_prefreeze": {
+    "cosmetic": "5/9",
+    "reference": "9/9",
+    "stoponly": "4/9",
+    "toolsonly": "4/9",
+    "upstream": "4/9"
+  },
+  "protocol_results": {
+    "cosmetic": {
+      "passed": 5,
+      "total": 9
+    },
+    "model_attempt_01": {
+      "passed": 9,
+      "total": 9
+    },
+    "reference": {
+      "passed": 9,
+      "total": 9
+    },
+    "stoponly": {
+      "passed": 4,
+      "total": 9
+    },
+    "toolsonly": {
+      "passed": 4,
+      "total": 9
+    },
+    "upstream": {
+      "passed": 4,
+      "total": 9
+    }
+  },
+  "timestamp": "2026-11-03 America/New_York",
+  "verdict": "Model patch matches reference (9/9 protocol, 18/18 supplemental) and beats every negative control, with the safety gate satisfied. Excerpt-level evidence only; not full upstream integration, not a contamination-free holdout, and no model-superiority claim."
+}

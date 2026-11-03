@@ -9,17 +9,17 @@
 From the `repair-bench/` directory (Python 3.11+):
 
 ```sh
-python source-repair/trial/run_trial.py --source upstream
-python source-repair/trial/run_trial.py --source reference
-python source-repair/trial/run_trial.py --source cosmetic
-python source-repair/trial/run_trial.py --source stoponly
-python source-repair/trial/run_trial.py --source toolsonly
-python source-repair/trial/metamorphic.py
-python source-repair/trial/model_request.py
-PYTHONPATH=submission python -m unittest submission.test_source_repair -v
+python3 source-repair/trial/run_trial.py --source upstream
+python3 source-repair/trial/run_trial.py --source reference
+python3 source-repair/trial/run_trial.py --source cosmetic
+python3 source-repair/trial/run_trial.py --source stoponly
+python3 source-repair/trial/run_trial.py --source toolsonly
+python3 source-repair/trial/metamorphic.py
+python3 source-repair/trial/model_request.py
+PYTHONPATH=submission python3 -m unittest submission.test_source_repair -v
 ```
 
-Launch the existing Repair Bench local server with `PYTHONPATH=submission python submission/server.py --port 8765` and open `http://127.0.0.1:8765/source-repair` on a machine that permits browser loopback networking. The page **replays recorded results**; it does not run arbitrary code or call Meta. Neither browser URLs nor raw model patches are executable endpoints.
+Launch the existing Repair Bench local server with `PYTHONPATH=submission python3 submission/server.py --port 8765` and open `http://127.0.0.1:8765/source-repair` on a machine that permits browser loopback networking. The page **replays recorded results**; it does not run arbitrary code or call Meta. Neither browser URLs nor raw model patches are executable endpoints.
 
 ## Results
 
@@ -30,6 +30,20 @@ The reference explicitly preserves content filtering as a stop reason, retains a
 Source patches are *not* a verified replacement for full Inspect integration; the experiment uses real upstream function bodies with deliberately small, locally authored dependency stand-ins. It does not reproduce all users of those functions, real OpenAI SDK output models, or live downstream agent dispatch.
 
 The issue and at least one proposed provider-side fix were public before this test. Therefore this is **not a contamination-free holdout**, does not establish newly discovered vulnerabilities or AI model superiority, and is not eligible to be advertised as a successful Meta repair attempt. A future genuine Meta attempt would need a fair, preferably undisclosed source case and full-system validation to establish added value.
+
+## Model attempt 01 (Meta Muse Spark, in-CLI proposal; owner review)
+
+A Meta-model-generated source patch proposal for this same frozen case is held
+for owner review under `source-repair/model_attempt_01/` (`PROPOSAL.json`,
+`MODEL_PATCH.diff`, `EVAL_RECORD.json`; freeze record
+`trial/FREEZE_MODEL_ATTEMPT_01.md`). It was generated in-CLI after the freeze
+(single attempt, no `api.meta.ai` call, no billed usage, no provider receipt)
+and scored by the unmodified harness in an isolated secret-free copy: **9/9**
+protocol cases and **18/18** supplemental checks, matching the reference and
+beating every negative control. Same boundaries as above apply: excerpt-level
+evidence only, not a contamination-free holdout, and no model-superiority claim.
+The recorded demo page and `results.json` intentionally still replay only the
+five pre-model branches.
 
 ## Safety/authority
 
