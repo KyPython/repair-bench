@@ -1,8 +1,7 @@
-# Direct Meta attempt 02 — runbook (draft, requires owner approval)
+# Direct Meta attempt 02 — runbook and outcome record
 
-Status: NOT STARTED. Attempt 01 is consumed and preserved byte for byte; nothing here
-resends it. This runbook exists so attempt 02 can be executed deliberately or
-declined with full information.
+Status: COMPLETED 2026-11-03 as a second negative result (see Outcome below).
+Attempt 01 is consumed and preserved byte for byte; nothing here resends it.
 
 ## Why attempt 01 failed, and what 02 would change
 
@@ -84,11 +83,27 @@ Cost bound: same shape as 01 — one call, ~11k tokens maximum. Provider offers 
 enforceable cap (alerts only); the bound is the frozen request plus owner risk
 acceptance, as in 01.
 
-## Outcome handling
+## Outcome (recorded 2026-11-03)
+
+Second negative result. The frozen request (`56cf4bd2…`, 9,786 bytes) was sent to
+`muse-spark-1.3` at 21:22:31 UTC; the provider returned HTTP 200, response
+`chatcmpl-01a1a34b-841f-76ee-b62b-85bd52867aa1`, clean stop, 7,962 tokens total
+(2,027 prompt, 5,935 completion incl. 5,499 reasoning). The validated proposal's
+patch (784 bytes, `aefbd9ff…`) failed scope review with the same reason as 01 —
+hunk context mismatch — despite the tightened format instructions, and was never
+executed. No sandbox run was launched per the runbook's scope-gate sequencing; no
+retry is permitted. Evidence: `source-repair/trial/direct_meta_02/` (request,
+manifest, billing authorization, send claim, transport summary, events,
+`scope_review.json`); raw provider bytes in gitignored `trial/.private/`.
+Attempt 01's directory is byte-identical. The video states both attempts as
+bounded usage with two genuine negative results.
+
+## Outcome handling (pre-registered)
 
 - Scope rejection or sandbox failure: record as a second negative result. The video's
   framing already holds; add one line ("a second attempt with tightened format
   instructions was likewise rejected at <stage>") only with evidence in hand.
+  (This branch fired; the video's Meta beat now covers both attempts.)
 - 9/9 acceptance: genuine positive result on a non-holdout case (contamination and
   no-superiority boundaries from source-repair/README.md still apply). Update the
   video's Meta beat before recording, or re-record that beat.

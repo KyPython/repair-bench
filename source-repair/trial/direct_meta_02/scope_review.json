@@ -1,0 +1,18 @@
+{
+  "attempt": "direct_meta_02",
+  "executed": false,
+  "hashes_match": true,
+  "patch_sha256": "aefbd9ff6095008c86a95769e859a01f187e79310939d66894080f0169eb0c10",
+  "reviewed_utc": "2026-11-03T21:24:32.981501+00:00",
+  "reviewer": {
+    "module": "sandbox_eval.review_patch",
+    "module_sha256": "9fce32867700d9987bf6f3b9fde5e85e5996e446dfc2a6ed2541f6bcefc42588"
+  },
+  "schema_version": 1,
+  "scope": {
+    "approved": false,
+    "reason": "Hunk context mismatch",
+    "status": "rejected"
+  },
+  "transport_patch_sha256": "aefbd9ff6095008c86a95769e859a01f187e79310939d66894080f0169eb0c10"
+}

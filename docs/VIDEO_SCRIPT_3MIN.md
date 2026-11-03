@@ -10,6 +10,8 @@ Notion mirror: child of Lamport Logic HQ — https://app.notion.com/p/Repair-Ben
 v2 changes (post-audit): Muse Spark named in the first 10 seconds; pipeline-framing line
 added to the Meta beat; stakes line added to the live demo; game-world beat compressed to
 one line; captions and pre-flight added to the checklist. Word count held flat.
+v2.1 (2026-11-03 evening): Meta beat covers both live attempts after 02's scope rejection
+(335 spoken words total; still inside 3:00 with pauses).
 
 ## Teleprompter copy (spoken words only)
 
@@ -35,12 +37,12 @@ frozen tests. The original code scores 4 of 9. The reference repair scores 9 of 
 partial controls score 5, 4, and 4. Varied-input checks agree: 9 of 18 before, 18 of 18
 after. The demo server never calls Meta; every number replays from frozen evidence.
 
-Here is our bounded Meta usage, stated plainly. On November 3rd we sent one frozen request
-to Muse Spark. It returned a clean completion, and its patch failed scope review, because
-its diff headers did not apply to the frozen excerpts. So it was never executed. A genuine
-negative result, shown as one. That pipeline — frozen request, scope gate, isolated sandbox,
-public replay — is the Meta integration, run end to end on a real API call. The same sandbox
-run reproduced every comparator score and accepted the operator-supplied candidate 9 of 9.
+Here is our bounded Meta usage, stated plainly. On November 3rd we sent two frozen requests
+to Muse Spark. Both returned clean completions, and both patches failed scope review, because
+their diff headers did not apply to the frozen excerpts. So neither was executed. Two genuine
+negative results, shown as such. That pipeline — frozen request, scope gate, isolated sandbox,
+public replay — is the Meta integration, run end to end on real API calls. The sandbox run
+reproduced every comparator score and accepted the operator-supplied candidate 9 of 9.
 
 Everything is public under MIT. Clone it, run it, and Chromium checks every claim.
 Repair Bench: prove the fix. Thank you.
@@ -85,7 +87,7 @@ SAY:
 VISUAL: Show the direct-trial panel: request hash, model name, token count, REJECTED AT SCOPE REVIEW.
 
 SAY:
-"Here is our bounded Meta usage, stated plainly. On November 3rd we sent one frozen request to Muse Spark. It returned a clean completion, and its patch failed scope review, because its diff headers did not apply to the frozen excerpts. So it was never executed. A genuine negative result, shown as one. That pipeline — frozen request, scope gate, isolated sandbox, public replay — is the Meta integration, run end to end on a real API call. The same sandbox run reproduced every comparator score and accepted the operator-supplied candidate 9 of 9."
+"Here is our bounded Meta usage, stated plainly. On November 3rd we sent two frozen requests to Muse Spark. Both returned clean completions, and both patches failed scope review, because their diff headers did not apply to the frozen excerpts. So neither was executed. Two genuine negative results, shown as such. That pipeline — frozen request, scope gate, isolated sandbox, public replay — is the Meta integration, run end to end on real API calls. The sandbox run reproduced every comparator score and accepted the operator-supplied candidate 9 of 9."
 
 ### 2:45–3:00 — Close: run it yourself
 
@@ -130,10 +132,12 @@ Do not fake a live verdict; narrate the replay as a replay.
 
 ## Claim-to-source audit (do not say more than this)
 
-- "Built with Muse Spark": one live `muse-spark-1.3` call Nov 3 2026 with provider
-  receipt in `source-repair/model-trial.json` (response `chatcmpl-01a1a2a2-…`, clean stop,
-  6,791 tokens), plus AI-assisted authoring throughout. The video states the call's
-  negative outcome plainly; the claim is usage plus pipeline, not a successful repair.
+- "Built with Muse Spark": two live `muse-spark-1.3` calls Nov 3 2026, each with
+  provider receipt (01: response `chatcmpl-01a1a2a2-…`, clean stop, 6,791 tokens,
+  replayed in `source-repair/model-trial.json`; 02: response `chatcmpl-01a1a34b-…`,
+  clean stop, 7,962 tokens, recorded in `source-repair/trial/direct_meta_02/`),
+  plus AI-assisted authoring throughout. The video states both negative outcomes
+  plainly; the claim is usage plus pipeline, not a successful repair.
 - Pipeline framing (freeze, scope gate, sandbox, replay): `docs/META_SOURCE_REPAIR_SPEC.md`
   criteria 3–10; `source-repair/trial/direct_meta_01/` (request, transport, sandbox report).
 - Sealed behavioral verification, menu/dialog, three options each: README.md lines 5–6.
@@ -144,9 +148,11 @@ Do not fake a live verdict; narrate the replay as a replay.
 - Loopback server, no Meta calls, no keys: submission/README.md, README.md line 20.
 - Inspect AI issue 5971, snapshot 386e099, frozen protocol hash: source-repair/README.md lines 5, 26.
 - Scores 4/9, 9/9, 5/9, 4/9, 4/9 and 9/18 vs 18/18: source-repair/README.md line 26.
-- Scope-review rejection ("diff headers did not apply"): `source-repair/model-trial.json`
-  candidates.direct_meta.scope (status rejected, "Hunk context mismatch"); never executed;
-  operator candidate 9/9 with scope approved. Source-repair/README.md lines 48–62.
+- Scope-review rejections ("diff headers did not apply"): both patches rejected with
+  "Hunk context mismatch" (01 in `model-trial.json` candidates.direct_meta.scope;
+  02 in `direct_meta_02/scope_review.json`); neither executed; operator candidate 9/9
+  with scope approved in 01's sandbox run. Source-repair/README.md lines 48–62,
+  docs/DIRECT_META_02_RUNBOOK.md.
 - In-CLI proposal 9/9 and 18/18 exists but provider identity not independently authenticated:
   README.md line 7, source-repair/README.md lines 34–46. Not claimed in this script.
 - World browser test passes in HTTP_NAVIGATION (verified 2026-11-03; see
