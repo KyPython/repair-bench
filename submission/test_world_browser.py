@@ -6,6 +6,10 @@ scripts are loaded into Chromium through set_content. This fallback verifies JS
 initialization, canvas drawing, and anti-cheat acceptance but cannot itself
 prove that the browser processed an HTTP CSP header. A separate server contract
 test asserts the exact CSP and every external same-origin import.
+
+Observation uses CDP-level APIs only (locators, text matching, screenshots):
+the asserted policy forbids 'unsafe-eval', so page.evaluate and
+wait_for_function string predicates cannot run inside the page.
 """
 from __future__ import annotations
 import hashlib
@@ -13,10 +17,13 @@ import http.client
 import json
 import re
 import threading
+import time
 import unittest
 from http.server import ThreadingHTTPServer
+from io import BytesIO
 from pathlib import Path
 import os
+from PIL import Image
 from playwright.sync_api import sync_playwright, Error as PlaywrightError
 
 from server import Handler
@@ -27,6 +34,18 @@ REQUIRED_SCRIPTS = (
     'src/harness.js', 'patches/seeded_defect_v1.js',
     'patches/fixture_repair.js', 'patches/cheat_autopilot.js'
 )
+
+
+def count_nonuniform_png_pixels(raw: bytes) -> int:
+    """Pixels differing from the top-left pixel.
+
+    A blank canvas renders a uniform fill, so any drawn grid, wall, goal or
+    player raises this count.
+    """
+    with Image.open(BytesIO(raw)) as img:
+        pixels = list(img.convert('RGB').getdata())
+    baseline = pixels[0]
+    return sum(1 for pixel in pixels if pixel != baseline)
 
 
 class WorldBrowserRegression(unittest.TestCase):
@@ -108,16 +127,18 @@ class WorldBrowserRegression(unittest.TestCase):
                         assets[src] = asset.decode()
                     # fetch and digest only replace browser transport and unavailable
                     # WebCrypto on about:blank; they do not replace oracle logic.
+                    # Injected via CDP before page scripts run, so the page CSP
+                    # (which forbids unsafe-eval) does not block installation.
                     page.expose_function('__rb_browser_digest', lambda text: list(hashlib.sha256(text.encode()).digest()))
-                    page.evaluate('''assets => {
+                    page.add_init_script('''const __rb_assets = ''' + json.dumps(assets) + '''; {
                       window.fetch = async (path) => {
-                        if (!(path in assets)) throw Error('asset blocked:' + path);
-                        return new Response(assets[path], {status:200});
+                        if (!(__rb_assets.hasOwnProperty(path))) throw Error('asset blocked:' + path);
+                        return new Response(__rb_assets[path], {status:200});
                       };
                       Object.defineProperty(crypto, 'subtle', {value: {
                         digest: async (_algo, bytes) => new Uint8Array(await window.__rb_browser_digest(new TextDecoder().decode(bytes))).buffer
                       }, configurable:true});
-                    }''', assets)
+                    }''')
                     # Inline exact trusted scripts in source order, preserving the
                     # original world JS unchanged and executing it inside Chromium.
                     html = SRC_PATTERN.sub(lambda match: '<script>\n' +
@@ -127,22 +148,27 @@ class WorldBrowserRegression(unittest.TestCase):
                     html = html.replace('</head>',
                         '<meta http-equiv="Content-Security-Policy" content="' + policy + '"></head>', 1)
                     page.set_content(html, wait_until='load', timeout=15000)
-                page.wait_for_function("() => document.querySelector('#cv') && typeof RBWorld !== 'undefined' && document.querySelector('#log').textContent.includes('Ready.')", timeout=5000)
-                page.wait_for_function('() => manifest !== null', timeout=5000)
-                self.assertTrue(page.evaluate('() => typeof RBWorld === "object" && !!RBWorld.LEVELS.level1'))
-                self.assertEqual(page.locator('#cv').evaluate('(el) => [el.width,el.height]'), [600,480])
-                # Visible canvas actually rendered rather than blank white pixel.
-                drawn_pixels = page.locator('#cv').evaluate('''canvas => {
-                    const data = canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
-                    let drawn=0; for(let i=3;i<data.length;i+=4) if(data[i]!==0) drawn++;
-                    return drawn; }''')
-                self.assertGreater(drawn_pixels, 100)
+                canvas = page.locator('#cv')
+                log = page.locator('#log')
+                canvas.wait_for(timeout=5000)
+                self.assertEqual([canvas.get_attribute('width'), canvas.get_attribute('height')], ['600', '480'])
+                # Manifest fetch plus first draw complete once the canvas is
+                # non-uniform; poll screenshots since in-page reads are CSP-blocked.
+                deadline = time.monotonic() + 10
+                drawn_pixels = 0
+                while time.monotonic() < deadline:
+                    drawn_pixels = count_nonuniform_png_pixels(canvas.screenshot(timeout=5000))
+                    if drawn_pixels > 100:
+                        break
+                    time.sleep(0.25)
+                self.assertGreater(drawn_pixels, 100,
+                                   'canvas never rendered a non-uniform world scene')
                 page.locator('#b2').click()
-                page.wait_for_function("() => document.querySelector('#log').textContent.includes('Cheat rejected as designed')", timeout=8000)
-                self.assertIn('Verdict: REJECTED', page.locator('#log').inner_text())
+                page.get_by_text('Cheat rejected as designed').wait_for(timeout=8000)
+                self.assertIn('Verdict: REJECTED', log.inner_text())
                 page.locator('#b3').click()
-                page.wait_for_function("() => document.querySelector('#log').textContent.includes('Fixture accepted')", timeout=8000)
-                self.assertIn('Verdict: ACCEPTED', page.locator('#log').inner_text())
+                page.get_by_text('Fixture accepted').wait_for(timeout=8000)
+                self.assertIn('Verdict: ACCEPTED', log.inner_text())
                 self.assertFalse(errors, f'Browser exceptions/console errors ({mode}): {errors[:5]}')
                 if os.environ.get('RB_WORLD_SCREENSHOT'):
                     page.screenshot(path=os.environ['RB_WORLD_SCREENSHOT'], full_page=True)

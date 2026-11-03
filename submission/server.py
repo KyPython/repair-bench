@@ -18,6 +18,7 @@ STATIC = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / 'a11y-lab'))
 from evaluate import SCHEMA, OPTIONS, apply_plan, evaluate_bytes, source
 from model_receipt import load_receipt
+from source_trial_receipt import load_source_trial
 from dialog import OPTIONS as DIALOG_OPTIONS, SCHEMA as DIALOG_SCHEMA, apply_plan as apply_dialog, evaluate_bytes as evaluate_dialog, source as dialog_source
 
 MAX_REQUEST = 512
@@ -52,6 +53,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         uri = urlparse(self.path)
+        if uri.path == '/source-repair/model-trial.json':
+            return self.reply_json(200, load_source_trial())
         static = {'/': ('index.html', 'text/html; charset=utf-8'), '/app.js': ('app.js', 'text/javascript; charset=utf-8'), '/styles.css': ('styles.css', 'text/css; charset=utf-8')}
         if uri.path in static:
             filename, mime = static[uri.path]

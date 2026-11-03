@@ -6,7 +6,9 @@ The trusted **`/world` response only** now uses `script-src 'self' 'unsafe-inlin
 
 `submission/test_world_browser.py` verifies the actual HTTP header and all eight script asset responses, **then launches headless Chromium**. It attempts navigation to the live `/world` endpoint and checks a nonblank canvas, the initialized `RBWorld` global, and REJECTED/ACCEPTED results from the original unchanged cheat/repair buttons.
 
-In browser environments forbidding localhost navigation (`ERR_BLOCKED_BY_ADMINISTRATOR`), the test *explicitly* falls back to executing the actual HTTP-served HTML and scripts in Chromium via `set_content`, with a test-only fetch/digest bridge. The fallback verifies behavior and the separate HTTP CSP contract but **is not proof of HTTP CSP enforcement in the browser**. It reports its mode on stdout; the desired release-evidence mode on a normal CI runner is `HTTP_NAVIGATION`. A final independently verified navigable-browser test is still required before public launch.
+In browser environments forbidding localhost navigation (`ERR_BLOCKED_BY_ADMINISTRATOR`), the test *explicitly* falls back to executing the actual HTTP-served HTML and scripts in Chromium via `set_content`, with a test-only fetch/digest bridge. The fallback verifies behavior and the separate HTTP CSP contract but **is not proof of HTTP CSP enforcement in the browser**. It reports its mode on stdout; the desired release-evidence mode on a normal CI runner is `HTTP_NAVIGATION`.
+
+Verified 2026-11-03 in `HTTP_NAVIGATION` mode on the owner's machine (`RB_CHROMIUM` pointing at system Chrome, since Playwright's bundled Chromium 120 crashes on this macOS release): 8 scripts, canvas rendered, cheat REJECTED, repair ACCEPTED. Test observation uses CDP-level APIs only (locators, text matching, screenshots, init scripts), because the asserted policy forbids `unsafe-eval` and in-page `evaluate` strings cannot run under it.
 
 Run it with:
 

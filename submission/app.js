@@ -42,7 +42,7 @@ async function loadModelReceipt(){
 }
 function switchTask(mode){
  if(busy||!modes[mode])return;
- task=mode;const m=modes[mode];$('workspaceTitle').textContent=m.title;$('taskDescription').textContent=m.description;$('fixtureUrl').textContent=`sealed-fixture.local/${mode}`;
+ task=mode;const m=modes[mode];$('workspaceTitle').textContent=m.title;$('taskDescription').textContent=m.description;$('fixtureUrl').textContent=`sealed-fixture.local/${mode}`;$('fixture').title=mode==='menu'?'Menu fixture preview':'Dialog fixture preview';
  for(const n of ['menu','dialog']){const b=$(n==='menu'?'taskMenu':'taskDialog');b.classList.toggle('active',n===mode);b.setAttribute('aria-pressed',String(n===mode));}
  document.querySelectorAll('.choice').forEach((el,i)=>{const [value,title,desc,tag]=m.options[i];const input=el.querySelector('input');input.value=value;input.checked=i===0;el.querySelector('strong').textContent=title;el.querySelector('small').textContent=desc;el.querySelector('.choice-tag').textContent=tag;});
  $('compare').hidden=true;$('progress').textContent='Ready for independent behavioral verification.';updateSelection();

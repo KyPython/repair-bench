@@ -1,0 +1,32 @@
+{
+  "claims": [
+    "The supplied proposal attributes authorship to Muse Code powered by Meta Muse Spark; no authenticated provider response is present.",
+    "The supplied freeze says it predates generation. No independently timestamped freeze or exact request bytes establish that chronology.",
+    "The supplied proposal says no API call or billed usage occurred. These are unverified operator claims; this session has not observed their billing.",
+    "The supplied EVAL_RECORD reports 9/9 frozen and 18/18 supplemental checks. Those historical results have not been independently reproduced in an approved sandbox."
+  ],
+  "classification": "OPERATOR_SUPPLIED_UNAUTHENTICATED",
+  "direct_observations": [
+    "Candidate, patch, proposal, evaluation record and freeze were present at session start as staged work.",
+    "All supplied records were preserved byte-for-byte in the protected inventory.",
+    "No code from the supplied candidate has been executed by this session."
+  ],
+  "files": {
+    "source-repair/model_attempt_01/EVAL_RECORD.json": "57cc2299228f5979f31b1406b0fe565fe0dc6f3c9cf730a6d3fab3d8de2459d4",
+    "source-repair/model_attempt_01/MODEL_PATCH.diff": "62161d862a04cef5b1c756baa2f8a9b57c1c7227d2ab8b6f8f8dc0f6f3a3e597",
+    "source-repair/model_attempt_01/PROPOSAL.json": "fe4f36424c5b904a5b155156e8e5c1072ce4344e0609f9ead04fd380b376d91c",
+    "source-repair/model_attempt_01/collect_stop_details.py": "a53ea3458a6c6c6dbce2879938f91bea41123d9f9d25e115e6847609856c94b5",
+    "source-repair/model_attempt_01/convert_response.py": "702297afab5df409751976bb91481c72763defea41b9c0ece5d5557dfc705b6e",
+    "source-repair/model_attempt_01/responses_stop_details.py": "af57c97c2b4ba7fd1ea9948d07ba1e211be4fddfce7f0865201eea30e6dfced2"
+  },
+  "freeze_file_sha256": "f76ae4e71dbdfb39395b42a3d13cac820d6e72a763dd331f1cbb1a3dc3d3a4c7",
+  "limitations": [
+    "A scrubbed environment and copied directory do not prevent network access or establish container/network isolation.",
+    "EVAL_RECORD describes unavailable network namespace denial and residual-risk acceptance; this task grants no waiver of required isolation.",
+    "Grep of a harness does not establish the absence of candidate-side effects.",
+    "Matching hashes establish byte identity only, not model authorship, billing, chronology or successful execution.",
+    "This is a public-issue, excerpt-level case with stand-in dependencies, not full Inspect integration or model superiority."
+  ],
+  "observed_at_utc": "2026-11-03T08:58:18.758932+00:00",
+  "schema_version": 1
+}

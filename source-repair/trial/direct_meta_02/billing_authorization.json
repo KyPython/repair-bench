@@ -1,0 +1,7 @@
+{
+  "authorized_utc": "2026-11-03T21:21:36.160924+00:00",
+  "owner_accepts_bounded_cost_risk": true,
+  "request_sha256": "56cf4bd2d391acd3419314ec7211d6b86bf09646e558e3c8d29f8b37fa87227f",
+  "schema_version": 1,
+  "scope": "direct_meta_02 single send, n=1, max_completion_tokens=8192, no retries"
+}

@@ -1,0 +1,32 @@
+--- a/convert_response.py
++++ b/convert_response.py
+@@ -26,13 +26,17 @@
+         _process_response_output_items(response.output, tools)
+     )
+ 
+-    if has_tool_calls:
++    # An incomplete response may carry partial tool-call fragments; only a
++    # complete response may dispatch calls or report a tool_calls stop.
++    response_complete = response.incomplete_details is None
++
++    if has_tool_calls and response_complete:
+         stop_reason = "tool_calls"
+ 
+     return (
+         ChatMessageAssistant(
+             content=message_content,
+-            tool_calls=tool_calls if len(tool_calls) > 0 else None,
++            tool_calls=(tool_calls if len(tool_calls) > 0 and response_complete else None),
+             model=model,
+             source="generate",
+         ),
+--- a/responses_stop_details.py
++++ b/responses_stop_details.py
+@@ -24,6 +24,6 @@
+ 
+     return StopDetails(
+         type="content_filter" if is_content_filter else "refusal",
+-        explanation=explanation,
++        explanation=explanation or ("Content filtered: response incomplete" if is_content_filter else None),
+     )
+ 

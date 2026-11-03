@@ -1,0 +1,941 @@
+{
+  "audit": {
+    "claims": [
+      "The supplied proposal attributes authorship to Muse Code powered by Meta Muse Spark; no authenticated provider response is present.",
+      "The supplied freeze says it predates generation. No independently timestamped freeze or exact request bytes establish that chronology.",
+      "The supplied proposal says no API call or billed usage occurred. These are unverified operator claims; this session has not observed their billing.",
+      "The supplied EVAL_RECORD reports 9/9 frozen and 18/18 supplemental checks. Those historical results have not been independently reproduced in an approved sandbox."
+    ],
+    "limitations": [
+      "A scrubbed environment and copied directory do not prevent network access or establish container/network isolation.",
+      "EVAL_RECORD describes unavailable network namespace denial and residual-risk acceptance; this task grants no waiver of required isolation.",
+      "Grep of a harness does not establish the absence of candidate-side effects.",
+      "Matching hashes establish byte identity only, not model authorship, billing, chronology or successful execution.",
+      "This is a public-issue, excerpt-level case with stand-in dependencies, not full Inspect integration or model superiority."
+    ]
+  },
+  "blockers": [],
+  "candidates": {
+    "direct_meta": {
+      "model_statements": {
+        "diagnosis": "Incomplete Responses API result with incomplete_details set (content_filter or max_output_tokens) that also contains a function-call item was mapped to StopReason tool_calls, so a partial call could be dispatched and the content_filter signal plus StopDetails were lost. Separately responses_stop_details returned explanation=None when no ResponseOutputRefusal was present, which collect_stop_details then dropped as empty, leaving a content_filter stop with no visible details. Fix suppresses dispatch on any incomplete response while preserving stop signaling and refusal text, and provides a nonempty fallback explanation in the provider extractor only, leaving shared collector behavior intact.",
+        "risks": [
+          "Clearing tool_calls on incomplete responses discards partial args that could aid debugging.",
+          "Generic 'Content was filtered' fallback has no category breakdown and may be too vague for UI.",
+          "Any incomplete_details reason now suppresses tool dispatch, including future reasons where partial execution might have been desired."
+        ],
+        "tests_to_run": [
+          "pytest tests/providers/openai/test_responses_api.py -k stop",
+          "pytest tests/model/test_stop_details.py -k content_filter",
+          "pytest tests/providers/openai/test_openai_responses_stop.py -k \"truncated or filtered or tool_calls\""
+        ]
+      },
+      "patch": "diff --git a/convert_response.py b/convert_response.py\n--- a/convert_response.py\n+++ b/convert_response.py\n@@ -28,8 +28,11 @@\n     message_content, tool_calls, logprobs, has_tool_calls = (\n         _process_response_output_items(response.output, tools)\n     )\n \n-    if has_tool_calls:\n-        stop_reason = \"tool_calls\"\n+    # Suppress partial tool calls on incomplete responses so a truncated\n+    # or filtered payload is never dispatched for execution.\n+    if response.incomplete_details is not None:\n+        tool_calls = []\n+    elif has_tool_calls:\n+        stop_reason = \"tool_calls\"\n \n     return (\n         ChatMessageAssistant(\ndiff --git a/responses_stop_details.py b/responses_stop_details.py\n--- a/responses_stop_details.py\n+++ b/responses_stop_details.py\n@@ -14,6 +14,9 @@\n         and getattr(incomplete, \"reason\", None) == \"content_filter\"\n     )\n \n+    if not explanation and is_content_filter:\n+        explanation = \"Content was filtered\"\n+\n     if not explanation and not is_content_filter:\n         return None\n \n",
+      "patch_sha256": "29947f398bc21f08a90ef951285eec9443549fc2a1984eb2fb055bbe375a01ba",
+      "protocol": null,
+      "provenance": "Direct Meta transport; executed only in the isolated sandbox after scope review.",
+      "scope": {
+        "approved": false,
+        "reasons": [
+          "Hunk context mismatch"
+        ],
+        "status": "rejected"
+      },
+      "status": "rejected",
+      "supplemental": null
+    },
+    "operator_supplied": {
+      "patch": "--- a/convert_response.py\n+++ b/convert_response.py\n@@ -26,13 +26,17 @@\n         _process_response_output_items(response.output, tools)\n     )\n \n-    if has_tool_calls:\n+    # An incomplete response may carry partial tool-call fragments; only a\n+    # complete response may dispatch calls or report a tool_calls stop.\n+    response_complete = response.incomplete_details is None\n+\n+    if has_tool_calls and response_complete:\n         stop_reason = \"tool_calls\"\n \n     return (\n         ChatMessageAssistant(\n             content=message_content,\n-            tool_calls=tool_calls if len(tool_calls) > 0 else None,\n+            tool_calls=(tool_calls if len(tool_calls) > 0 and response_complete else None),\n             model=model,\n             source=\"generate\",\n         ),\n--- a/responses_stop_details.py\n+++ b/responses_stop_details.py\n@@ -24,6 +24,6 @@\n \n     return StopDetails(\n         type=\"content_filter\" if is_content_filter else \"refusal\",\n-        explanation=explanation,\n+        explanation=explanation or (\"Content filtered: response incomplete\" if is_content_filter else None),\n     )\n \n",
+      "patch_sha256": "62161d862a04cef5b1c756baa2f8a9b57c1c7227d2ab8b6f8f8dc0f6f3a3e597",
+      "protocol": {
+        "all_passed": true,
+        "cases": [
+          {
+            "case": "filtered_tool",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Content filtered: response incomplete",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "filtered_tool_with_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Blocked due to policy",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "filtered_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Content filtered: response incomplete",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_text",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "No, I cannot help.",
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool_with_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "I can't finish.",
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          }
+        ],
+        "passed": 9,
+        "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+        "total": 9
+      },
+      "provenance": "Supplied files preserved byte-for-byte; sandbox outcome shown when independently observed.",
+      "scope": {
+        "approved": true,
+        "reasons": [
+          "conservative syntax and side-effect scope review; container still required"
+        ],
+        "status": "accepted"
+      },
+      "status": "accepted",
+      "supplemental": {
+        "checks": 18,
+        "passed": 18
+      }
+    }
+  },
+  "comparisons": {
+    "cosmetic": {
+      "protocol": {
+        "all_passed": false,
+        "cases": [
+          {
+            "case": "filtered_tool",
+            "failures": [
+              "stop: expected='content_filter', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": true,
+              "explanation": "Response incomplete: content_filter",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_tool_with_refusal",
+            "failures": [
+              "stop: expected='content_filter', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": true,
+              "explanation": "Blocked due to policy",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Response incomplete: content_filter",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool",
+            "failures": [
+              "stop: expected='max_tokens', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_text",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "No, I cannot help.",
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool_with_refusal",
+            "failures": [
+              "stop: expected='max_tokens', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": true,
+              "explanation": "I can't finish.",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          }
+        ],
+        "passed": 5,
+        "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+        "total": 9
+      },
+      "supplemental": {
+        "checks": 18,
+        "passed": 10
+      }
+    },
+    "reference": {
+      "protocol": {
+        "all_passed": true,
+        "cases": [
+          {
+            "case": "filtered_tool",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Response incomplete: content_filter",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "filtered_tool_with_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Blocked due to policy",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "filtered_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Response incomplete: content_filter",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_text",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "No, I cannot help.",
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool_with_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "I can't finish.",
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          }
+        ],
+        "passed": 9,
+        "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+        "total": 9
+      },
+      "supplemental": {
+        "checks": 18,
+        "passed": 18
+      }
+    },
+    "stoponly": {
+      "protocol": {
+        "all_passed": false,
+        "cases": [
+          {
+            "case": "filtered_tool",
+            "failures": [
+              "details_type: expected='content_filter', observed=None",
+              "dispatch: expected=False, observed=True",
+              "explanation: must be present for blocked content"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_tool_with_refusal",
+            "failures": [
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": true,
+              "explanation": "Blocked due to policy",
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_no_tool",
+            "failures": [
+              "details_type: expected='content_filter', observed=None",
+              "explanation: must be present for blocked content"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_tool",
+            "failures": [
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_text",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "No, I cannot help.",
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool_with_refusal",
+            "failures": [
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": true,
+              "explanation": "I can't finish.",
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 1
+            },
+            "passed": false
+          }
+        ],
+        "passed": 4,
+        "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+        "total": 9
+      },
+      "supplemental": {
+        "checks": 18,
+        "passed": 9
+      }
+    },
+    "toolsonly": {
+      "protocol": {
+        "all_passed": false,
+        "cases": [
+          {
+            "case": "filtered_tool",
+            "failures": [
+              "stop: expected='content_filter', observed='tool_calls'",
+              "details_type: expected='content_filter', observed=None",
+              "explanation: must be present for blocked content"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 0
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_tool_with_refusal",
+            "failures": [
+              "stop: expected='content_filter', observed='tool_calls'"
+            ],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": false,
+              "explanation": "Blocked due to policy",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 0
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_no_tool",
+            "failures": [
+              "details_type: expected='content_filter', observed=None",
+              "explanation: must be present for blocked content"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_tool",
+            "failures": [
+              "stop: expected='max_tokens', observed='tool_calls'"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 0
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_text",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "No, I cannot help.",
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool_with_refusal",
+            "failures": [
+              "stop: expected='max_tokens', observed='tool_calls'"
+            ],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "I can't finish.",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 0
+            },
+            "passed": false
+          }
+        ],
+        "passed": 4,
+        "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+        "total": 9
+      },
+      "supplemental": {
+        "checks": 18,
+        "passed": 9
+      }
+    },
+    "upstream": {
+      "protocol": {
+        "all_passed": false,
+        "cases": [
+          {
+            "case": "filtered_tool",
+            "failures": [
+              "stop: expected='content_filter', observed='tool_calls'",
+              "details_type: expected='content_filter', observed=None",
+              "dispatch: expected=False, observed=True",
+              "explanation: must be present for blocked content"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_tool_with_refusal",
+            "failures": [
+              "stop: expected='content_filter', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "content_filter",
+              "dispatch": true,
+              "explanation": "Blocked due to policy",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "filtered_no_tool",
+            "failures": [
+              "details_type: expected='content_filter', observed=None",
+              "explanation: must be present for blocked content"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "content_filter",
+              "tool_call_count": 0
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_tool",
+            "failures": [
+              "stop: expected='max_tokens', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          },
+          {
+            "case": "truncated_no_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "max_tokens",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_tool",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": true,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_text",
+            "failures": [],
+            "observed": {
+              "details_type": null,
+              "dispatch": false,
+              "explanation": null,
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "normal_refusal",
+            "failures": [],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": false,
+              "explanation": "No, I cannot help.",
+              "message_text": "model response text",
+              "stop": "stop",
+              "tool_call_count": 0
+            },
+            "passed": true
+          },
+          {
+            "case": "truncated_tool_with_refusal",
+            "failures": [
+              "stop: expected='max_tokens', observed='tool_calls'",
+              "dispatch: expected=False, observed=True"
+            ],
+            "observed": {
+              "details_type": "refusal",
+              "dispatch": true,
+              "explanation": "I can't finish.",
+              "message_text": "model response text",
+              "stop": "tool_calls",
+              "tool_call_count": 1
+            },
+            "passed": false
+          }
+        ],
+        "passed": 4,
+        "protocol_sha256": "6ff034733f768b3f972c0ef35079ec122239e981a705f6b82a28207890ffd595",
+        "total": 9
+      },
+      "supplemental": {
+        "checks": 18,
+        "passed": 9
+      }
+    }
+  },
+  "label": "Local recorded evidence; the replay does not authenticate the provider",
+  "schema_version": 1,
+  "status": "completed",
+  "transport": {
+    "finish_reason": "stop",
+    "patch_sha256": "29947f398bc21f08a90ef951285eec9443549fc2a1984eb2fb055bbe375a01ba",
+    "provider_request_id": "41b5484e-0f3c-40b5-979b-5e166985e629",
+    "received_at_utc": "2026-11-03T18:19:11.583568+00:00",
+    "request_sha256": "f122a2a0cea4518b366b3e49a74d7be45ccf9ba8c4ec5d5d889df0eddd9d79b4",
+    "requested_model": "muse-spark-1.3",
+    "reserved_at_utc": "2026-11-03T09:39:20.059469+00:00",
+    "response_id": "chatcmpl-01a1a2a2-f73b-7512-a909-7ce79fb8f797",
+    "response_sha256": "48bec7b45323a39c0a8a868243aca2234bd160b1dd33a09122aad07d67385b98",
+    "returned_model": "muse-spark-1.3",
+    "sent_at_utc": "2026-11-03T18:18:17.579966+00:00",
+    "status": "completed",
+    "usage": {
+      "completion_tokens": 4885,
+      "completion_tokens_details": {
+        "reasoning_tokens": 4350
+      },
+      "prompt_tokens": 1906,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "total_tokens": 6791
+    }
+  },
+  "validation": {
+    "observations": [
+      "Transport status: completed",
+      "Sandbox status: completed",
+      "Comparators reproduced: True",
+      "Sandbox image: sha256:db20d8506e2f15b6db39b40b6015ca46bae855dec6dd326d462cfe79ae972893",
+      "Isolation probe passed: True",
+      "operator_supplied candidate status: accepted",
+      "direct_meta candidate status: rejected"
+    ]
+  }
+}
