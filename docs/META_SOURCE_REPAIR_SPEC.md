@@ -97,6 +97,21 @@ re-baseline that one file's hash in `source-repair/trial/PROTECTED_SHA256.json`
 attempt 01's recorded evidence (including the spec hash in its manifest, which
 remains a true record of the spec as it stood at reservation) is untouched.
 
+## Amendment 2026-11-03 — second attempt authorized (direct_meta_02)
+
+One further exclusive reservation `direct_meta_02` with newly frozen request bytes
+is authorized under criteria 3-10 unchanged: same model (`muse-spark-1.3`), n=1,
+8192 completion tokens, no tools, no streaming, no retries, no resends. The new
+request carries tightened unified-diff format instructions addressing 01's hunk
+context mismatch; it is not a resend. Implementation lives in the separate module
+`source-repair/trial/direct_transport_02.py`; the 01 module and all 01 evidence
+stay byte-identical. Transport still requires `MODEL_API_KEY` plus an
+owner-authored `billing_authorization.json` in `direct_meta_02/` with scope
+`direct_meta_02 single send, n=1, max_completion_tokens=8192, no retries` bound
+to the new request SHA-256. No third attempt without a new amendment. Execution
+is owner-sequenced after the demo video is submitted; see
+`docs/DIRECT_META_02_RUNBOOK.md`.
+
 ## Shared replay evidence contract (v1)
 
 `source-repair/model-trial.json` is a sanitized local artifact, never raw provider

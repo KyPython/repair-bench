@@ -60,8 +60,15 @@ cd /Users/ky/repair-bench
 # 0. Baseline green first (RB_CHROMIUM set, all suites pass).
 # 1. Freeze the new request (no network, no credentials read):
 python3 source-repair/trial/direct_transport_02.py --prepare
-# 2. Confirm the request SHA-256 from the printed manifest, then owner writes
-#    source-repair/trial/direct_meta_02/billing_authorization.json by hand.
+#    Expected request SHA-256 (computed 2026-11-03 from frozen inputs; the
+#    printed manifest must match exactly or STOP — inputs changed):
+#    56cf4bd2d391acd3419314ec7211d6b86bf09646e558e3c8d29f8b37fa87227f
+# 2. Owner hand-writes source-repair/trial/direct_meta_02/billing_authorization.json:
+#    {"schema_version": 1,
+#     "scope": "direct_meta_02 single send, n=1, max_completion_tokens=8192, no retries",
+#     "request_sha256": "<sha from step 1>",
+#     "owner_accepts_bounded_cost_risk": true,
+#     "authorized_utc": "<now, ISO-8601, max 64 chars>"}
 # 3. Preflight (must report ready, zero blockers):
 python3 source-repair/trial/direct_transport_02.py --preflight
 # 4. Single send (consumes the reservation whatever happens; no retry):
