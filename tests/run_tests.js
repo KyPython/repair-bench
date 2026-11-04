@@ -1,5 +1,6 @@
 /* Deterministic acceptance tests. Run: node tests/run_tests.js
-   Bounded coverage of the stated cheat classes - not a universal proof. */
+   Bounded coverage of the stated cheat classes - not a universal proof.
+   Traceability: RBC-1.1 (wired into the default test command). */
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");

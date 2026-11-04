@@ -1,0 +1,10 @@
+{
+  "name": "repair-bench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Benchmark harness for repair-agent evaluation.",
+  "scripts": {
+    "test": "node tests/run_tests.js && node --test tests/evaluate_mapping.test.js && node --check submission/app.js",
+    "test:python": "python3 -m unittest discover -s a11y-lab -p 'test_*.py' && PYTHONPATH=submission python3 -m unittest discover -s submission -p 'test_*.py'"
+  }
+}
