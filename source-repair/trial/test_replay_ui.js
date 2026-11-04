@@ -17,7 +17,7 @@ class Node {
  addEventListener(k,fn){this[k]=fn;}
 }
 async function page(evidence){
- const nodes={};const branches=['upstream','cosmetic','stoponly','toolsonly','reference','operator_supplied','direct_meta'].map(branch=>{const n=new Node();n.dataset.branch=branch;return n;});
+ const nodes={};const branches=['upstream','cosmetic','stoponly','toolsonly','reference','operator_supplied','direct_meta','direct_meta_02'].map(branch=>{const n=new Node();n.dataset.branch=branch;return n;});
  const context=vm.createContext({document:{getElementById:id=>nodes[id]??(nodes[id]=new Node()),createElement:()=>new Node(),querySelectorAll:()=>branches},
  fetch:async url=>({ok:true,json:async()=>url.endsWith('results.json')?historical:evidence})});
  const source=fs.readFileSync(path.join(root,'app.js'),'utf8').replace(/init\(\);\s*$/,'globalThis.ready=init();');
@@ -56,6 +56,23 @@ test('missing and invalid trials preserve historical replay and show no model sc
   p.select('direct_meta');assert.equal(p.nodes.score.textContent,'Not evaluated');
   assert.match(p.nodes.trialStatus.textContent,/missing|invalid/);
  }
+});
+test('second attempt replays scope rejection without a protocol outcome',async()=>{
+ const evidence=trial();evidence.transport_02={status:'completed',requested_model:'muse-spark-1.3',response_id:'chatcmpl-second',usage:{total_tokens:7962}};
+ evidence.candidates.direct_meta_02={status:'rejected',provenance:'Scope-reviewed only and never executed',patch:'--- a/x\n+++ b/x\n',patch_sha256:'b'.repeat(64),scope:{approved:false,status:'rejected',reasons:['Hunk context mismatch']},model_statements:{diagnosis:'Second statement'}};
+ const p=await page(evidence);p.select('direct_meta_02');
+ assert.equal(p.nodes.score.textContent,'Not evaluated');
+ assert.match(p.nodes.summary.textContent,/never executed/);
+ assert.match(p.nodes.scopeResult.textContent,/Hunk context mismatch/);
+ assert.match(p.nodes.supplementalScore.textContent,/not evaluated/);
+ const second=p.nodes.transportDetails02.children.map(row=>row.children[1].textContent).join(' ');
+ assert.match(second,/chatcmpl-second/);assert.match(second,/7962/);
+ p.select('direct_meta');assert.equal(p.nodes.score.textContent,'9 / 9');
+});
+test('absent second attempt shows no second transport and keeps the first',async()=>{
+ const p=await page(trial());
+ assert.match(p.nodes.transportDetails02.children.map(row=>row.children[1].textContent).join(' '),/No second direct transport/);
+ p.select('direct_meta_02');assert.equal(p.nodes.score.textContent,'Not evaluated');
 });
 test('transport observations, supplied claims and independent results stay distinct',async()=>{
  const p=await page(trial());

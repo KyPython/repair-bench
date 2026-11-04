@@ -39,6 +39,37 @@ class SourceTrialReceiptTests(unittest.TestCase):
         self.assertIn('<script>', clean['candidates']['direct_meta']['patch'])
         self.assertEqual(clean['transport']['usage']['completion_tokens_details']['reasoning_tokens'], 5)
 
+    def test_second_attempt_replays_scope_rejection_with_receipt(self):
+        doc = example()
+        doc['transport_02'] = {'status': 'completed', 'requested_model': 'muse-spark-1.3',
+                               'returned_model': 'muse-spark-1.3', 'response_id': 'chatcmpl-second',
+                               'finish_reason': 'stop', 'request_sha256': 'c'*64,
+                               'patch_sha256': hashlib.sha256(b'second diff').hexdigest(),
+                               'usage': {'prompt_tokens': 5, 'total_tokens': 9}}
+        doc['candidates']['direct_meta_02'] = {
+            'status': 'rejected', 'provenance': 'Scope-reviewed only, never executed',
+            'patch': 'second diff',
+            'patch_sha256': hashlib.sha256(b'second diff').hexdigest(),
+            'protocol': None, 'supplemental': None,
+            'scope': {'approved': False, 'status': 'rejected', 'reasons': ['Hunk context mismatch']},
+            'model_statements': {'diagnosis': 'Second statement', 'risks': [], 'tests_to_run': []}}
+        clean = receipt.sanitize(doc)
+        second = clean['candidates']['direct_meta_02']
+        self.assertEqual(second['status'], 'rejected')
+        self.assertFalse(second['scope']['approved'])
+        self.assertIsNone(second['protocol'])
+        self.assertEqual(clean['transport_02']['response_id'], 'chatcmpl-second')
+        # The first attempt is untouched by the second.
+        self.assertEqual(clean['candidates']['direct_meta']['protocol']['passed'], 9)
+
+    def test_second_attempt_secrets_excluded(self):
+        doc = example()
+        doc['transport_02'] = {'status': 'completed', 'usage': {'account_id': 7}}
+        doc['candidates']['direct_meta_02'] = {'status': 'unavailable',
+                                               'provenance': 'Nothing recorded'}
+        output = json.dumps(receipt.sanitize(doc))
+        self.assertNotIn('account_id', output)
+
     def test_failed_replay_preserves_failures_and_no_candidate_outcome(self):
         doc = example()
         doc.update(status='failed', blockers=['Response truncated'])

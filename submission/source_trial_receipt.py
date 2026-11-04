@@ -12,7 +12,7 @@ import re
 
 EVIDENCE = Path(__file__).resolve().parents[1] / 'source-repair' / 'model-trial.json'
 BRANCHES = ('upstream', 'reference', 'cosmetic', 'stoponly', 'toolsonly')
-CANDIDATES = ('operator_supplied', 'direct_meta')
+CANDIDATES = ('operator_supplied', 'direct_meta', 'direct_meta_02')
 STATUSES = {'blocked', 'failed', 'completed', 'accepted', 'rejected', 'not_run', 'unavailable'}
 TRANSPORT_STATUSES = STATUSES | {'reserved', 'not_sent', 'uncertain'}
 CASES = ('filtered_tool', 'filtered_tool_with_refusal', 'filtered_no_tool',
@@ -158,21 +158,27 @@ def _candidate(value):
     return result
 
 
+def _transport(value):
+    if type(value) is not dict or value.get('status') not in TRANSPORT_STATUSES:
+        raise ValueError('Invalid transport')
+    clean = {'status': value['status']}
+    for key in ('requested_model', 'returned_model', 'response_id', 'provider_request_id', 'finish_reason',
+                'reserved_at_utc', 'sent_at_utc', 'received_at_utc'):
+        clean[key] = None if value.get(key) is None else _text(value[key], 200)
+    for key in ('request_sha256', 'response_sha256', 'patch_sha256'):
+        clean[key] = _hash(value.get(key))
+    clean['usage'] = _usage(value.get('usage'))
+    return clean
+
+
 def sanitize(doc):
     if type(doc) is not dict or type(doc.get('schema_version')) is not int or doc['schema_version'] != 1:
         raise ValueError('Invalid evidence schema')
     if doc.get('status') not in {'blocked', 'failed', 'completed'}:
         raise ValueError('Invalid evidence status')
-    transport = doc.get('transport')
-    if type(transport) is not dict or transport.get('status') not in TRANSPORT_STATUSES:
-        raise ValueError('Invalid transport')
-    clean_transport = {'status': transport['status']}
-    for key in ('requested_model', 'returned_model', 'response_id', 'provider_request_id', 'finish_reason',
-                'reserved_at_utc', 'sent_at_utc', 'received_at_utc'):
-        clean_transport[key] = None if transport.get(key) is None else _text(transport[key], 200)
-    for key in ('request_sha256', 'response_sha256', 'patch_sha256'):
-        clean_transport[key] = _hash(transport.get(key))
-    clean_transport['usage'] = _usage(transport.get('usage'))
+    clean_transport = _transport(doc.get('transport'))
+    second = doc.get('transport_02')
+    clean_second = None if second is None else _transport(second)
     comparisons = doc.get('comparisons', {})
     candidates = doc.get('candidates', {})
     if type(comparisons) is not dict or type(candidates) is not dict:
@@ -192,6 +198,7 @@ def sanitize(doc):
     return {'schema_version': 1, 'status': doc['status'],
             'label': 'Local recorded evidence; the replay does not authenticate the provider',
             'blockers': _texts(doc.get('blockers', [])), 'transport': clean_transport,
+            'transport_02': clean_second,
             'comparisons': clean_comparisons, 'candidates': clean_candidates,
             'audit': {'claims': _texts(audit.get('claims', [])),
                       'limitations': _texts(audit.get('limitations', []))},

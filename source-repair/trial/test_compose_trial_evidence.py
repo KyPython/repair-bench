@@ -97,6 +97,62 @@ class ComposeTests(unittest.TestCase):
         # The operator patch is public evidence even without any sandbox run.
         self.assertIn("convert_response.py", doc["candidates"]["operator_supplied"]["patch"])
 
+    def test_second_attempt_replays_scope_rejection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            attempt_dir = attempt(tmp)
+            authorize_private(attempt_dir)
+            second = Path(tmp) / "direct_meta_02"
+            second.mkdir()
+            (second / "manifest.json").write_text(json.dumps(
+                {"requested_model": "muse-spark-1.3", "reserved_utc": "2026-11-03T01:00:00+00:00",
+                 "request_sha256": "d" * 64}))
+            (second / "transport.json").write_text(json.dumps(
+                {"status": "response_validated_unexecuted", "requested_model": "muse-spark-1.3",
+                 "returned_model": "muse-spark-1.3", "response_id": "chatcmpl-second",
+                 "finish_reason": "stop", "sent_utc": "2026-11-03T01:00:01+00:00",
+                 "received_utc": "2026-11-03T01:00:02+00:00",
+                 "request_sha256": "d" * 64, "response_sha256": "e" * 64,
+                 "patch_sha256": hashlib.sha256(PATCH.encode()).hexdigest(),
+                 "usage": {"prompt_tokens": 5, "total_tokens": 9}}))
+            (second / "scope_review.json").write_text(json.dumps(
+                {"attempt": "direct_meta_02", "executed": False,
+                 "patch_sha256": hashlib.sha256(PATCH.encode()).hexdigest(),
+                 "scope": {"approved": False, "status": "rejected",
+                           "reason": "Hunk context mismatch"}}))
+            authorize_private(second)
+            doc = compose.compose(attempt_dir, sandbox(tmp), audit_path=compose.TRIAL / "OPERATOR_ATTEMPT_AUDIT.json", attempt2_dir=second)
+        self.assertEqual(doc["transport_02"]["response_id"], "chatcmpl-second")
+        replayed = doc["candidates"]["direct_meta_02"]
+        self.assertEqual(replayed["status"], "rejected")
+        self.assertFalse(replayed["scope"]["approved"])
+        self.assertIn("Hunk context mismatch", replayed["scope"]["reasons"])
+        self.assertIsNone(replayed["protocol"])
+        self.assertEqual(replayed["patch"], PATCH)
+        self.assertEqual(replayed["model_statements"]["diagnosis"], "Fixture diagnosis")
+        self.assertIn("direct_meta_02 candidate status: rejected", doc["validation"]["observations"])
+        # The first attempt is untouched by the second.
+        self.assertEqual(doc["candidates"]["direct_meta"]["status"], "accepted")
+        self.assertEqual(doc["transport"]["response_id"], "chatcmpl-test")
+
+    def test_second_attempt_fingerprint_mismatch_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            attempt_dir = attempt(tmp)
+            authorize_private(attempt_dir)
+            second = Path(tmp) / "direct_meta_02"
+            second.mkdir()
+            (second / "manifest.json").write_text(json.dumps(
+                {"requested_model": "muse-spark-1.3", "request_sha256": "d" * 64}))
+            (second / "transport.json").write_text(json.dumps(
+                {"status": "response_validated_unexecuted",
+                 "patch_sha256": "0" * 64}))
+            (second / "scope_review.json").write_text(json.dumps(
+                {"attempt": "direct_meta_02", "executed": False,
+                 "patch_sha256": hashlib.sha256(PATCH.encode()).hexdigest(),
+                 "scope": {"approved": False, "status": "rejected"}}))
+            authorize_private(second)
+            with self.assertRaises(compose.ComposeError):
+                compose.compose(attempt_dir, sandbox(tmp), attempt2_dir=second)
+
     def test_rejected_transport_exports_no_patch(self):
         with tempfile.TemporaryDirectory() as tmp:
             attempt_dir = attempt(tmp, status="rejected", error="malformed_json")

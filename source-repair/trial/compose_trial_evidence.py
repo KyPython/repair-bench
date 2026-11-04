@@ -168,11 +168,64 @@ def _direct_candidate(attempt: Path, transport: dict, sandbox: dict | None,
     return record
 
 
+def _direct_candidate_02(attempt: Path, transport: dict,
+                        blockers: list[str]) -> dict:
+    """Replay the second direct attempt from its scope review and private bytes.
+
+    Attempt 02 was scope-reviewed and never executed; no sandbox run was
+    launched, so there is no protocol outcome. Every value comes from the
+    attempt directory's scope_review.json, transport summary, or private
+    response bytes; fingerprints must agree across all three.
+    """
+    record: dict = {"status": "unavailable",
+                    "provenance": "Second direct Meta transport; scope-reviewed "
+                                  "only and never executed; no sandbox run was launched.",
+                    "patch": None, "patch_sha256": None,
+                    "protocol": None, "supplemental": None, "scope": None}
+    if transport["status"] != "completed":
+        blockers.append("No validated second direct response to evaluate")
+        return record
+    try:
+        review = _read_json(attempt / "scope_review.json")
+    except ComposeError:
+        blockers.append("Second direct scope review is unavailable for replay")
+        record["status"] = "failed"
+        return record
+    private = attempt.parent / ".private" / attempt.name
+    try:
+        patch = _read_text(private / "MODEL_PATCH.diff")
+        proposal = _read_json(private / "proposal.json")
+    except ComposeError:
+        blockers.append("Validated second direct response is unavailable for replay")
+        record["status"] = "failed"
+        return record
+    fingerprint = hashlib.sha256(patch.encode()).hexdigest()
+    if transport.get("patch_sha256") != fingerprint:
+        raise ComposeError("Second direct patch fingerprint mismatch")
+    if review.get("patch_sha256") != fingerprint or review.get("executed") is not False:
+        raise ComposeError("Second direct scope review mismatch")
+    scope = _scope(review.get("scope"))
+    record["scope"] = scope
+    record["status"] = "rejected" if not (scope and scope.get("approved")) else "not_run"
+    record["patch"] = patch
+    record["patch_sha256"] = fingerprint
+    if type(proposal.get("diagnosis")) is str and type(proposal.get("risks")) is list \
+            and type(proposal.get("tests_to_run")) is list:
+        record["model_statements"] = {"diagnosis": proposal["diagnosis"],
+                                      "risks": proposal["risks"],
+                                      "tests_to_run": proposal["tests_to_run"]}
+    return record
+
+
 def compose(attempt_dir: Path = TRIAL / "direct_meta_01",
             sandbox_report: Path | None = None,
-            audit_path: Path = TRIAL / "OPERATOR_ATTEMPT_AUDIT.json") -> dict:
+            audit_path: Path = TRIAL / "OPERATOR_ATTEMPT_AUDIT.json",
+            attempt2_dir: Path | None = None) -> dict:
     blockers: list[str] = []
     transport = _transport(attempt_dir, blockers)
+    transport_02: dict | None = None
+    if attempt2_dir is not None:
+        transport_02 = _transport(attempt2_dir, blockers)
     sandbox: dict | None = None
     if sandbox_report is not None:
         sandbox = _read_json(sandbox_report)
@@ -187,6 +240,8 @@ def compose(attempt_dir: Path = TRIAL / "direct_meta_01",
                                    "supplemental": row.get("supplemental")}
     candidates = {"operator_supplied": _operator_candidate(sandbox, blockers),
                   "direct_meta": _direct_candidate(attempt_dir, transport, sandbox, blockers)}
+    if attempt2_dir is not None:
+        candidates["direct_meta_02"] = _direct_candidate_02(attempt2_dir, transport_02, blockers)
     try:
         audit = _read_json(audit_path)
         claims, limitations = audit.get("claims", []), audit.get("limitations", [])
@@ -207,7 +262,8 @@ def compose(attempt_dir: Path = TRIAL / "direct_meta_01",
     status = "blocked" if sandbox is None or sandbox.get("status") == "blocked" else (
         "completed" if sandbox.get("status") == "completed" else "failed")
     doc = {"schema_version": 1, "status": status, "blockers": blockers,
-           "transport": transport, "comparisons": comparisons,
+           "transport": transport, "transport_02": transport_02,
+           "comparisons": comparisons,
            "candidates": candidates,
            "audit": {"claims": claims, "limitations": limitations},
            "validation": {"observations": observations}}
@@ -217,6 +273,7 @@ def compose(attempt_dir: Path = TRIAL / "direct_meta_01",
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--attempt", type=Path, default=TRIAL / "direct_meta_01")
+    parser.add_argument("--attempt2", type=Path)
     parser.add_argument("--sandbox", type=Path)
     parser.add_argument("--audit", type=Path, default=TRIAL / "OPERATOR_ATTEMPT_AUDIT.json")
     parser.add_argument("--out", type=Path, required=True)
@@ -224,7 +281,7 @@ def main() -> int:
     if args.out.exists() or args.out.is_symlink():
         parser.error("Refusing to replace an existing artifact")
     try:
-        doc = compose(args.attempt, args.sandbox, args.audit)
+        doc = compose(args.attempt, args.sandbox, args.audit, args.attempt2)
     except (ComposeError, ValueError) as exc:
         print(json.dumps({"status": "refused", "reason": str(exc)[:200]}))
         return 2

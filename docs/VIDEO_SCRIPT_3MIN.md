@@ -156,9 +156,10 @@ Do not fake a live verdict; narrate the replay as a replay.
 - Scores 4/9, 9/9, 5/9, 4/9, 4/9 and 9/18 vs 18/18: source-repair/README.md line 26.
 - Scope-review rejections ("diff headers did not apply"): both patches rejected with
   "Hunk context mismatch" (01 in `model-trial.json` candidates.direct_meta.scope;
-  02 in `direct_meta_02/scope_review.json`); neither executed; operator candidate 9/9
-  with scope approved in 01's sandbox run. Source-repair/README.md lines 48–62,
-  docs/DIRECT_META_02_RUNBOOK.md.
+  02 in `model-trial.json` candidates.direct_meta_02.scope, sourced from
+  `direct_meta_02/scope_review.json`); neither executed; operator candidate 9/9
+  with scope approved in 01's sandbox run. Source-repair/README.md
+  direct-attempt sections, docs/DIRECT_META_02_RUNBOOK.md.
 - In-CLI proposal 9/9 and 18/18 exists but provider identity not independently authenticated:
   README.md line 7, source-repair/README.md lines 34–46. Not claimed in this script.
 - World browser test passes in HTTP_NAVIGATION (verified 2026-11-03; see

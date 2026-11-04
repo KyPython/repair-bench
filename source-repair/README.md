@@ -61,6 +61,22 @@ the rejected patch replay in the demo page from sanitized
 successful repair, and the contamination and no-superiority boundaries above
 still apply.
 
+## Second direct Meta attempt (one live `api.meta.ai` call, 2026-11-03 evening)
+
+A new frozen request (`trial/direct_meta_02/request.json`, 9,786 bytes,
+SHA-256 `56cf4bd2…`) with tightened diff-format instructions was sent to
+`muse-spark-1.3` at 21:22:31 UTC under the runbook in
+`docs/DIRECT_META_02_RUNBOOK.md`. The provider returned HTTP 200, response
+`chatcmpl-01a1a34b-…`, clean stop, 7,962 tokens total. The validated proposal's
+patch (784 bytes, `aefbd9ff…`) failed scope review with the same reason as the
+first attempt — hunk context mismatch — and was never executed; no sandbox run
+was launched. Both attempts replay distinctly in the demo page from sanitized
+`source-repair/model-trial.json` (`candidates.direct_meta` /
+`candidates.direct_meta_02` with `transport` / `transport_02`); raw provider
+bytes stay in the gitignored `trial/.private/` directory. Two genuine negative
+results, not successful repairs, and the contamination and no-superiority
+boundaries above still apply.
+
 ## Safety/authority
 
 - No imported upstream package or its install scripts were executed.

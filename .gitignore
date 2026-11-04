@@ -12,3 +12,4 @@ a11y-lab/trials/
 trials/
 *.log
 .DS_Store
+.serena/

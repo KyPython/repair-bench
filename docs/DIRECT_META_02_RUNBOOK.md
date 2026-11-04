@@ -95,6 +95,9 @@ executed. No sandbox run was launched per the runbook's scope-gate sequencing; n
 retry is permitted. Evidence: `source-repair/trial/direct_meta_02/` (request,
 manifest, billing authorization, send claim, transport summary, events,
 `scope_review.json`); raw provider bytes in gitignored `trial/.private/`.
+Sanitized replay is composed into `source-repair/model-trial.json`
+(`candidates.direct_meta_02`, `transport_02`) with attempt 01's sections
+byte-identical; both attempts render distinctly in the `/source-repair` demo.
 Attempt 01's directory is byte-identical. The video states both attempts as
 bounded usage with two genuine negative results.
 

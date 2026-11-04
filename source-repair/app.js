@@ -1,6 +1,6 @@
 'use strict';
 const labels={upstream:'The unchanged conversion loses content-filter details and exposes incomplete calls.',cosmetic:'A warning is restored, but the tool call is still available for execution.',stoponly:'The stop reason is improved, but partial calls and missing details remain.',toolsonly:'Partial calls are suppressed, but the stop reason and filter evidence can still be wrong.',reference:'The reference keeps normal calls, hides incomplete ones, and preserves block evidence.'};
-const candidateNames={operator_supplied:'Operator-supplied candidate',direct_meta:'Direct Meta candidate'};
+const candidateNames={operator_supplied:'Operator-supplied candidate',direct_meta:'Direct Meta candidate',direct_meta_02:'Second direct Meta candidate'};
 const byId=id=>document.getElementById(id);
 let results=null,trial=null;
 
@@ -62,10 +62,23 @@ function renderTrial(info){
  notes(byId('validationNotes'),info.validation?.observations||[]);
  const details=byId('transportDetails');details.replaceChildren();
  const t=info.transport;
- if(!t){textRow(details,'Transport','No direct transport evidence recorded.');return;}
- const fields={status:'Transport status',requested_model:'Requested model',returned_model:'Returned model',response_id:'Response ID',provider_request_id:'Provider request ID',finish_reason:'Finish reason',reserved_at_utc:'Reserved (UTC)',sent_at_utc:'Sent (UTC)',received_at_utc:'Received (UTC)',request_sha256:'Request SHA-256',response_sha256:'Response SHA-256',patch_sha256:'Proposed patch SHA-256'};
- for(const [key,label] of Object.entries(fields))if(t[key]!==null&&t[key]!==undefined)textRow(details,label,t[key]);
- textRow(details,'Observed usage',t.usage===null||t.usage===undefined?'No provider usage observed.':JSON.stringify(t.usage,null,2));
+ if(!t){textRow(details,'Transport','No direct transport evidence recorded.');}
+ else{
+  const fields={status:'Transport status',requested_model:'Requested model',returned_model:'Returned model',response_id:'Response ID',provider_request_id:'Provider request ID',finish_reason:'Finish reason',reserved_at_utc:'Reserved (UTC)',sent_at_utc:'Sent (UTC)',received_at_utc:'Received (UTC)',request_sha256:'Request SHA-256',response_sha256:'Response SHA-256',patch_sha256:'Proposed patch SHA-256'};
+  for(const [key,label] of Object.entries(fields))if(t[key]!==null&&t[key]!==undefined)textRow(details,label,t[key]);
+  textRow(details,'Observed usage',t.usage===null||t.usage===undefined?'No provider usage observed.':JSON.stringify(t.usage,null,2));
+ }
+ const details02=byId('transportDetails02');
+ if(details02){
+  details02.replaceChildren();
+  const t2=info.transport_02;
+  if(!t2){textRow(details02,'Second transport','No second direct transport evidence recorded.');}
+  else{
+   const fields={status:'Transport status',requested_model:'Requested model',returned_model:'Returned model',response_id:'Response ID',provider_request_id:'Provider request ID',finish_reason:'Finish reason',reserved_at_utc:'Reserved (UTC)',sent_at_utc:'Sent (UTC)',received_at_utc:'Received (UTC)',request_sha256:'Request SHA-256',response_sha256:'Response SHA-256',patch_sha256:'Proposed patch SHA-256'};
+   for(const [key,label] of Object.entries(fields))if(t2[key]!==null&&t2[key]!==undefined)textRow(details02,label,t2[key]);
+   textRow(details02,'Observed usage',t2.usage===null||t2.usage===undefined?'No provider usage observed.':JSON.stringify(t2.usage,null,2));
+  }
+ }
 }
 async function loadHistorical(){
  try{
