@@ -2,7 +2,7 @@
 
 Target: authentic 3-minute YouTube demo for the Meta Global AI Developer Hackathon.
 Deadline: November 4, 2026, 9:00 PM ET. Owner records, edits, uploads, and submits.
-Spoken target: ~370 words at a calm pace, plus live-click pauses. Timecodes assume ~130 wpm.
+Spoken target: ~311 words at a calm pace, plus live-click pauses. Timecodes assume ~130 wpm.
 Track/theme fit: Indie track (creativity, technical ambition, whether it works) —
 Push the Frontier: a new capability for the age of AI-written code.
 Notion mirror: child of Lamport Logic HQ — https://app.notion.com/p/Repair-Bench-3-minute-hackathon-demo-script-FINAL-40d8621e0a7a81b88cb1dbcb57da2152 (page 40d8621e-0a7a-81b8-8cb1-dbcb57da2152).
@@ -11,7 +11,9 @@ v2 changes (post-audit): Muse Spark named in the first 10 seconds; pipeline-fram
 added to the Meta beat; stakes line added to the live demo; game-world beat compressed to
 one line; captions and pre-flight added to the checklist. Word count held flat.
 v2.1 (2026-11-03 evening): Meta beat covers both live attempts after 02's scope rejection
-(335 spoken words total; still inside 3:00 with pauses).
+(335 spoken words in historical v2.1, before the GPT-6 correction).
+
+GPT-6 audit correction — 2026-11-03: both direct Muse Spark patches failed scope review and were not executed. The operator-supplied 9/9 sandbox result is a separate candidate. Full latest-HEAD recording-machine and browser checks, official waiver, video and submission receipt remain unverified. The existing FINAL status is reserved for owner review.
 
 ## Teleprompter copy (spoken words only)
 
@@ -37,15 +39,9 @@ frozen tests. The original code scores 4 of 9. The reference repair scores 9 of 
 partial controls score 5, 4, and 4. Varied-input checks agree: 9 of 18 before, 18 of 18
 after. The demo server never calls Meta; every number replays from frozen evidence.
 
-Here is our bounded Meta usage, stated plainly. On November 3rd we sent two frozen requests
-to Muse Spark. Both returned clean completions, and both patches failed scope review, because
-their diff headers did not apply to the frozen excerpts. So neither was executed. Two genuine
-negative results, shown as such. That pipeline — frozen request, scope gate, isolated sandbox,
-public replay — is the Meta integration, run end to end on real API calls. The sandbox run
-reproduced every comparator score and accepted the operator-supplied candidate 9 of 9.
+We also ran two direct Muse Spark calls for the real-source case. Both returned proposed patches, but both failed our frozen scope check: the diff context did not match. Neither model patch was executed or scored. The public replay shows both receipts and rejections. Separately, an operator-supplied candidate passed nine of nine sandbox checks. We cannot claim a successful Muse Spark repair.
 
-Everything is public under MIT. Clone it, run it, and Chromium checks every claim.
-Repair Bench: prove the fix. Thank you.
+The code and sanitized evidence are public under MIT. Clone it, run the verifier, and inspect the evidence. Repair Bench: prove the fix. Thank you.
 
 ## Spoken script with visuals
 
@@ -87,7 +83,7 @@ SAY:
 VISUAL: Show the direct-trial panel: request hash, model name, token count, REJECTED AT SCOPE REVIEW.
 
 SAY:
-"Here is our bounded Meta usage, stated plainly. On November 3rd we sent two frozen requests to Muse Spark. Both returned clean completions, and both patches failed scope review, because their diff headers did not apply to the frozen excerpts. So neither was executed. Two genuine negative results, shown as such. That pipeline — frozen request, scope gate, isolated sandbox, public replay — is the Meta integration, run end to end on real API calls. The sandbox run reproduced every comparator score and accepted the operator-supplied candidate 9 of 9."
+"We also ran two direct Muse Spark calls for the real-source case. Both returned proposed patches, but both failed our frozen scope check: the diff context did not match. Neither model patch was executed or scored. The public replay shows both receipts and rejections. Separately, an operator-supplied candidate passed nine of nine sandbox checks. We cannot claim a successful Muse Spark repair."
 
 ### 2:45–3:00 — Close: run it yourself
 
@@ -95,7 +91,7 @@ VISUAL: Show the repo URL and the run commands. End card: repo link plus
 "Indie track — Push the Frontier".
 
 SAY:
-"Everything is public under MIT. Clone it, run it, and Chromium checks every claim. Repair Bench: prove the fix. Thank you."
+"The code and sanitized evidence are public under MIT. Clone it, run the verifier, and inspect the evidence. Repair Bench: prove the fix. Thank you."
 
 ## Pre-flight (run before recording, on the recording machine)
 
@@ -108,6 +104,7 @@ export RB_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 # on camera instead of verdicts — do not skip it.)
 node tests/run_tests.js                    # expect 16 passed, 0 failed
 node --test tests/evaluate_mapping.test.js # expect pass 11, fail 0
+node --test source-repair/trial/test_replay_ui.js # expect 7 passed, 0 failed (not re-run by GPT-6)
 python3 -m unittest discover -s a11y-lab -p 'test_*.py'  # expect 37 OK
 PYTHONPATH=submission python3 -m unittest discover -s submission -p 'test_*.py'  # expect 33 OK incl. HTTP_NAVIGATION
 node --check submission/app.js
