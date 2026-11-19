@@ -66,9 +66,11 @@ replays Inspect AI issue #5971 against pinned excerpts and frozen tests
 Bounded Meta usage, fully receipted: two frozen requests to Muse Spark 1.3
 returned clean completions whose patches failed scope review (hunk context
 mismatch) and were never executed — two genuine negative results shown as such.
-The freeze → scope-gate → isolated-sandbox → public-replay pipeline ran end to
-end on real API calls; the same sandbox run reproduced every comparator score
-and accepted the operator-supplied candidate 9/9.
+Both Muse Spark requests completed successfully at the API transport level,
+but their proposed patches failed scope review and were never executed.
+A separate sandbox evaluation accepted the operator-supplied candidate at 9/9.
+The public replay preserves these different outcomes without attributing
+the successful repair to Muse Spark.
 ```
 
 ## Pre-submit checklist
