@@ -23,6 +23,11 @@ concurrency:
 
 jobs:
   ai-governance:
+    # SECFC-7.8: the verdict job reads check runs. Grant checks: read here before moving the pin to a
+    # commit that has it; a called workflow cannot exceed this grant, so without it the run fails at startup.
+    permissions:
+      contents: read
+      checks: read
     uses: KyPython/ai-governance/.github/workflows/governance.yml@3c26e4b5dd6d1c3ae98624bc4115633fad64ad54 # KyPython/ai-governance main 53462a0
     with:
       node-version: "22"
